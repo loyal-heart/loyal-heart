@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Loyal Heart</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+
+  <style>
+    /* =========================================================
+       PART 1 CSS
+       ========================================================= */
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background: #000;
+      color: #fff;
+      overflow-x: hidden;
+      scroll-behavior: smooth; 
+    }
+
+    /* PRELOADER */
+    .preloader {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100dvh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 99999; background: #000;
+    }
+
+    /* =========================================================
+       NEW: INITIAL LOADER (INSTANT VISIBILITY)
+       ========================================================= */
+    .initial-loader {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100000; /* Sits above the marquee */
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+      background: #000;
+    }
+
+    .initial-loader.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-text {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      letter-spacing: 0.4em;
+      color: #c9a84c;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .loader-line-container {
+      width: 180px;
+      height: 1px;
+      background: rgba(201, 168, 76, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loader-line {
+      position: absolute;
+      top: 0; left: 0; height: 100%; width: 50%;
+      background: #c9a84c;
+      animation: loadingSwipe 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes loadingSwipe {
+      0% { transform: translateX(-100%); width: 20%; }
+      50% { width: 50%; }
+      100% { transform: translateX(200%); width: 20%; }
+    }
+
+    /* EXISTING MARQUEE STYLES */
+    .marquee-row {
+      width: 100%; overflow: hidden; display: flex;
+      align-items: center; height: 0;
+      transition: height 0.5s ease; background: #000;
+    }
+    .marquee-logo {
+      height: 16dvh; width: auto; max-width: 180px;
+      object-fit: contain; margin: 0 3vw;
+      display: block; border-radius: 8px;
+    }
+    .marquee-row.active { height: 20dvh; }
+    .marquee-content {
+      display: flex; white-space: nowrap; align-items: center;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .marquee-row.active .marquee-content {
+      opacity: 1; animation: scroll 5s linear infinite;
+    }
+    .marquee-row:nth-child(even) .marquee-content {
+      animation-direction: reverse;
+    }
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .preloader.closing .marquee-row { transition: opacity 0.4s ease, height 0.4s ease; }
+    .preloader.closing #row1, .preloader.closing #row5 { opacity: 0; height: 0; }
+    .preloader.closing.step2 #row2, .preloader.closing.step2 #row4 { opacity: 0; height: 0; }
+    .preloader.closing.step3 #row3 { opacity: 0; height: 0; }
+    .preloader.hide {
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.01s ease, visibility 0.01s ease;
+      pointer-events: none;
+    }
+
+    /* MAIN CONTENT */
+    .main-site { opacity: 0; transition: opacity 0.8s ease; }
+    .main-site.show { opacity: 1; }
+
+    /* FIXED TOP LOGO */
+    .top-logo {
+      position: fixed; top: 0; left: 50%;
+      transform: translateX(-50%); z-index: 1000;
+      opacity: 0; transition: opacity 0.8s ease; line-height: 0;
+    }
+    .top-logo.show { opacity: 1; }
+    .top-logo img {
+      height: 200px; width: auto; object-fit: contain;
+      filter: brightness(0) invert(1) drop-shadow(0 0 3px rgba(0,0,0,0.5));
+      margin-top: -55px;
+    }
+
+    /* SEARCH ICON & OVERLAY */
+    .search-icon {
+      position: fixed; top: 30px; left: 20px; z-index: 1001;
+      opacity: 0; transition: opacity 0.8s ease; cursor: pointer;
+      background: transparent; border: none; padding: 5px;
+    }
+    .search-icon.show { opacity: 1; }
+    .search-icon svg {
+      width: 20px; height: 20px; stroke: #fff;
+      stroke-width: 2; fill: none; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));
+    }
+    .search-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+      background: #fff; z-index: 1010; 
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease; padding: 60px 40px;
+    }
+    .search-overlay.active { opacity: 1; visibility: visible; }
+    .search-close {
+      position: absolute; top: 20px; right: 20px; background: transparent;
+      border: none; font-size: 30px; color: #333; cursor: pointer;
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    }
+    .search-container {
+      display: flex; align-items: center; gap: 15px; margin-bottom: 40px;
+      border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;
+    }
+    .search-icon-static { pointer-events: none; user-select: none; }
+    .search-icon-static svg { width: 28px; height: 28px; stroke: #666; stroke-width: 2; fill: none; display: block; }
+    .search-input {
+      flex: 1; border: none; outline: none; font-size: 32px;
+      font-weight: 500; color: #333; background: transparent;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .search-input::placeholder { color: #999; }
+
+    /* MENU BUTTON */
+    .menu-btn {
+      position: fixed; top: 25px; right: 20px; z-index: 1005; opacity: 0;
+      transition: opacity 0.8s ease; cursor: pointer; padding: 10px;
+      background: transparent; border: none;
+    }
+    .menu-btn.show { opacity: 1; }
+    .menu-btn span {
+      display: block; width: 20px; height: 2px; background: #fff;
+      margin: 5px 0; transition: all 0.3s ease; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    
+    .menu-btn.open span {
+      background: #1d1d1f; 
+      box-shadow: none;
+    }
+    .menu-btn.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .menu-btn.open span:nth-child(2) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* FULL SCREEN MENU OVERLAY */
+    .menu-overlay-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100dvh;
+      background: rgba(255, 255, 255, 0.98); 
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1004;
+      display: flex;
+      flex-direction: column;
+      padding: 100px 40px 40px;
+      transform: translateY(-100%);
+      transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+      overflow-y: auto; 
+    }
+
+    .menu-overlay-screen.active {
+      transform: translateY(0);
+    }
+
+    /* Menu Items Styling & Staggered Animation */
+    .nav-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .nav-list > li {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .menu-overlay-screen.active .nav-list > li {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: calc(0.2s + (var(--i) * 0.06s));
+    }
+
+    .nav-list a.menu-link, .nav-list a.accordion-toggle {
+      color: #1d1d1f; 
+      text-decoration: none;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 28px; 
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: color 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .nav-list a:hover {
+      color: #c9a84c; 
+    }
+
+    /* ACCORDION STYLES */
+    .toggle-icon {
+      font-size: 28px;
+      font-weight: 300;
+      transition: transform 0.3s ease;
+      color: #c9a84c;
+    }
+
+    .accordion-item.open .toggle-icon {
+      transform: rotate(45deg); 
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, margin-top 0.4s ease, opacity 0.4s ease;
+      opacity: 0;
+    }
+
+    .accordion-item.open .accordion-content {
+      max-height: 300px; 
+      margin-top: 15px;
+      opacity: 1;
+    }
+
+    .accordion-content p {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #555; 
+      margin: 0;
+    }
+
+    /* =========================================================
+       PREMIUM HERO SECTION — MOBILE FIRST
+       ========================================================= */
+
+    /* ── Hero wrapper ── */
+    .hero {
+      position: relative; height: 100vh; width: 100%;
+      overflow: hidden; z-index: 10;
+      background: #030201;
+    }
+
+    /* ── Deep cinematic vignette ── */
+    .hero-vig {
+      position: absolute; inset: 0; z-index: 4; pointer-events: none;
+      background: radial-gradient(ellipse 80% 72% at 50% 46%, transparent 0%, rgba(0,0,0,0.55) 58%, rgba(0,0,0,0.97) 100%);
+    }
+
+    /* ── Gold hairline top border (animates in) ── */
+    .hero-topline {
+      position: absolute; top: 0; left: 0; right: 0; height: 1px; z-index: 30;
+      background: linear-gradient(90deg, transparent 0%, rgba(201,168,76,0) 5%, rgba(201,168,76,0.65) 30%, rgba(255,215,100,0.9) 50%, rgba(201,168,76,0.65) 70%, rgba(201,168,76,0) 95%, transparent 100%);
+      transform: scaleX(0);
+      animation: hero-line-reveal 1.4s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
+    }
+    @keyframes hero-line-reveal { to { transform: scaleX(1); } }
+
+    /* ── Art deco corner brackets ── */
+    .hero-corner {
+      position: absolute; z-index: 20; width: 22px; height: 22px; pointer-events: none;
+      opacity: 0; animation: hero-fade-up 0.8s ease 2.0s forwards;
+    }
+    .hero-corner::after {
+      content: ''; position: absolute; width: 5px; height: 5px;
+      background: rgba(201,168,76,0.55); border-radius: 50%;
+    }
+    .hero-corner.tl { top: 90px; left: 18px; border-top: 1px solid rgba(201,168,76,0.45); border-left: 1px solid rgba(201,168,76,0.45); }
+    .hero-corner.tr { top: 90px; right: 18px; border-top: 1px solid rgba(201,168,76,0.45); border-right: 1px solid rgba(201,168,76,0.45); }
+    .hero-corner.bl { bottom: 80px; left: 18px; border-bottom: 1px solid rgba(201,168,76,0.45); border-left: 1px solid rgba(201,168,76,0.45); }
+    .hero-corner.br { bottom: 80px; right: 18px; border-bottom: 1px solid rgba(201,168,76,0.45); border-right: 1px solid rgba(201,168,76,0.45); }
+    .hero-corner.tl::after { top: -3px; left: -3px; }
+    .hero-corner.tr::after { top: -3px; right: -3px; left: auto; }
+    .hero-corner.bl::after { bottom: -3px; left: -3px; top: auto; }
+    .hero-corner.br::after { bottom: -3px; right: -3px; left: auto; top: auto; }
+
+    /* ── Side tick marks ── */
+    .hero-tick {
+      position: absolute; z-index: 20; width: 7px; height: 1px;
+      background: rgba(201,168,76,0.35); top: 50%; margin-top: -0.5px;
+      opacity: 0; animation: hero-fade-up 0.8s ease 2.2s forwards;
+    }
+    .hero-tick.l { left: 18px; }
+    .hero-tick.r { right: 18px; }
+
+    /* ── Center hero content ── */
+    .hero-center {
+      position: absolute; inset: 0; z-index: 15;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 0 24px; text-align: center;
+    }
+
+    /* Title glow aura */
+    .hero-aura {
+      position: absolute; width: 85vw; height: 45vw; max-width: 360px; max-height: 180px;
+      background: radial-gradient(ellipse, rgba(201,168,76,0.06) 0%, transparent 65%);
+      left: 50%; top: 50%; transform: translate(-50%, -60%);
+      z-index: 14; pointer-events: none;
+      animation: hero-aura-pulse 5s ease-in-out infinite;
+    }
+    @keyframes hero-aura-pulse {
+      0%,100% { opacity: 0.7; transform: translate(-50%,-60%) scale(1); }
+      50%      { opacity: 1;   transform: translate(-50%,-60%) scale(1.06); }
+    }
+
+    /* Eyebrow label */
+    .hero-eyebrow {
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600;
+      font-size: 14px; letter-spacing: 0.42em; color: rgba(201,168,76,0.75);
+      text-transform: uppercase; margin-bottom: 16px;
+      opacity: 0; animation: hero-fade-up 1s ease 0.4s forwards;
+    }
+
+    /* Ornament divider row */
+    .hero-orn-row {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; max-width: 200px; margin-bottom: 22px;
+      opacity: 0; animation: hero-fade-up 1s ease 0.65s forwards;
+    }
+    .hero-orn-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.6));
+    }
+    .hero-orn-line.r { background: linear-gradient(270deg, transparent, rgba(201,168,76,0.6)); }
+    .hero-orn-diam {
+      width: 6px; height: 6px; background: #c9a84c;
+      transform: rotate(45deg); flex-shrink: 0;
+      box-shadow: 0 0 10px rgba(201,168,76,0.7);
+    }
+    .hero-orn-dot {
+      width: 3px; height: 3px; background: rgba(201,168,76,0.65);
+      border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* Main title — two lines, big & staggered */
+    .hero-word-loyal  { overflow: hidden; line-height: 1; }
+    .hero-word-heart  { overflow: hidden; line-height: 1; margin-top: 3px; }
+    .hero-word-loyal span, .hero-word-heart span {
+      display: block;
+      font-family: 'Cinzel', serif; font-weight: 300;
+      font-size: clamp(44px, 14vw, 64px);
+      letter-spacing: 0.25em; color: #fff;
+      text-transform: uppercase;
+      text-shadow: 0 0 60px rgba(201,168,76,0.1);
+    }
+    .hero-word-loyal span { transform: translateY(108%); animation: hero-slide-up 1.1s cubic-bezier(0.16,1,0.3,1) 0.82s forwards; }
+    .hero-word-heart span { transform: translateY(108%); animation: hero-slide-up 1.1s cubic-bezier(0.16,1,0.3,1) 1.12s forwards; }
+    @keyframes hero-slide-up { to { transform: translateY(0); } }
+
+    /* Gold underline that expands */
+    .hero-title-line {
+      width: 0; height: 1px; margin: 14px auto 0;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.8), transparent);
+      animation: hero-expand-w 1.2s ease 1.85s forwards;
+    }
+    @keyframes hero-expand-w { to { width: min(55vw, 220px); } }
+
+    /* Subtitle */
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600;
+      font-size: 15px; letter-spacing: 0.2em; color: rgba(201,168,76,0.82);
+      margin-top: 16px; line-height: 1.6;
+      opacity: 0; animation: hero-fade-up 1s ease 1.75s forwards;
+    }
+
+    /* Vertical rule */
+    .hero-vrule {
+      width: 1px; height: 0; margin: 18px auto;
+      background: linear-gradient(180deg, rgba(201,168,76,0.7), rgba(201,168,76,0.05));
+      animation: hero-grow-h 1.2s ease 2.05s forwards;
+    }
+    @keyframes hero-grow-h { to { height: 38px; } }
+
+    /* Designer credit */
+    .hero-credit {
+      display: flex; align-items: center; gap: 10px;
+      opacity: 0; animation: hero-fade-up 1s ease 2.35s forwards;
+    }
+    .hero-credit-line {
+      width: 22px; height: 1px; background: rgba(201,168,76,0.4);
+    }
+    .hero-credit-text {
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600;
+      font-size: 14px; letter-spacing: 0.2em; color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+    }
+    .hero-credit-name {
+      font-family: 'Cinzel', serif; font-weight: 600; font-style: normal;
+      font-size: 14px; letter-spacing: 0.35em; color: rgba(201,168,76,0.85);
+    }
+
+    /* ── Shared hero animation utilities ── */
+    @keyframes hero-fade-up {
+      from { opacity: 0; transform: translateY(7px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SCROLL DOWN INDICATORS ── */
+    .scroll-down-indicator, .heart-scroll-indicator {
+      position: absolute; bottom: 89px; left: 50%; transform: translateX(-50%);
+      z-index: 25; display: flex; align-items: center; gap: 10px;
+      opacity: 0; transition: opacity 0.8s ease; cursor: default; pointer-events: none;
+    }
+    .heart-scroll-indicator { z-index: 25; bottom: 70px; transition: opacity 0.5s ease; }
+    .scroll-down-indicator.show, .heart-scroll-indicator.show { opacity: 1; }
+    .scroll-down-text, .heart-scroll-text {
+      font-family: 'Cinzel', serif;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.42em;
+      text-transform: uppercase; color: rgba(255,255,255,0.55);
+      white-space: nowrap;
+    }
+    .scroll-down-icon, .heart-scroll-icon {
+      width: 22px; height: 22px; object-fit: contain;
+      animation: bounce 2.2s ease-in-out infinite; opacity: 0.8;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(5px); }
+    }
+
+    /* =========================================================
+       CHAPTERS INTRO — FULL-SCREEN HORIZONTAL SWIPE CAROUSEL
+       ========================================================= */
+
+    /* Outer section: exactly one screen tall, no scroll */
+    .chapters-intro-section {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      background: #000;
+      overflow: hidden;
+      z-index: 12;
+    }
+
+    /* ── The sliding track: holds all 10 slides side by side ── */
+    .ci-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      will-change: transform;
+      transition: transform 0.52s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .ci-track.no-transition {
+      transition: none;
+    }
+
+    /* ── Each slide = 100% × 100dvh ── */
+    .ci-slide {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px;
+      overflow: hidden;
+    }
+
+    /* Unique dark-tinted background per slide using accent color */
+    .ci-slide::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 75% 65% at 50% 50%,
+        var(--slide-glow, rgba(201,168,76,0.07)) 0%,
+        transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: ci-glow-pulse 5s ease-in-out infinite;
+    }
+    @keyframes ci-glow-pulse {
+      0%,100% { opacity: 0.7; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.08); }
+    }
+
+    /* Gold top hairline */
+    .ci-slide::after {
+      content: '';
+      position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(201,168,76,0.4) 30%,
+        rgba(201,168,76,0.7) 50%,
+        rgba(201,168,76,0.4) 70%,
+        transparent);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Slide inner content ── */
+    .ci-slide-inner {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center;
+      width: 100%;
+      opacity: 0;
+      transform: translateY(18px) scale(0.97);
+      transition: opacity 0.5s cubic-bezier(0.16,1,0.3,1) 0.18s,
+                  transform 0.5s cubic-bezier(0.16,1,0.3,1) 0.18s;
+    }
+    .ci-slide.active .ci-slide-inner {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* ── Chapter Intro Cover Slide ── */
+    .ci-cover-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 11px; letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.6);
+      margin-bottom: 24px;
+    }
+    .ci-cover-title {
+      font-family: 'Cinzel', serif;
+      font-weight: 400;
+      font-size: clamp(32px, 8vw, 48px);
+      color: #fff;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      text-shadow: 0 0 30px rgba(201,168,76,0.2);
+    }
+    .ci-cover-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(34px, 9vw, 56px);
+      color: #e8dcc8;
+      font-weight: 300;
+      line-height: 1.2;
+      text-align: center;
+    }
+    .ci-cover-subtitle span {
+      font-style: italic;
+      color: #c9a84c;
+      font-weight: 400;
+    }
+    .ci-cover-desc {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: clamp(14px, 3vw, 18px);
+      color: rgba(255, 255, 255, 0.5); 
+      margin-top: 20px;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+    .ci-cover-rule {
+      width: 80px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.6), transparent);
+      margin-top: 36px;
+    }
+
+    /* Chapter label */
+    .ci-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px; letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.45);
+      margin-bottom: 28px;
+    }
+
+    /* Big icon */
+    .ci-icon {
+      font-size: 64px; line-height: 1;
+      margin-bottom: 22px;
+      filter: drop-shadow(0 0 22px var(--slide-color, rgba(201,168,76,0.5)));
+      animation: ci-icon-float 4s ease-in-out infinite;
+    }
+    @keyframes ci-icon-float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    /* Color rule */
+    .ci-rule {
+      width: 38px; height: 1.5px;
+      border-radius: 1px;
+      margin-bottom: 20px;
+      background: var(--slide-color, #c9a84c);
+      box-shadow: 0 0 10px var(--slide-color, #c9a84c);
+    }
+
+    /* Chapter name */
+    .ci-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(38px, 12vw, 58px);
+      color: #fff;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      margin-bottom: 16px;
+      text-shadow: 0 0 40px rgba(255,255,255,0.06);
+    }
+
+    /* Chapter desc */
+    .ci-desc {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 15px;
+      color: rgba(255,255,255,0.38);
+      line-height: 1.7;
+      max-width: 260px;
+    }
+
+    /* ── Dot indicators ── */
+    .ci-dots {
+      position: absolute;
+      bottom: 44px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 7px;
+      z-index: 10;
+    }
+    .ci-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(201,168,76,0.25);
+      transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+      cursor: pointer;
+    }
+    .ci-dot.active {
+      background: #c9a84c;
+      width: 18px;
+      border-radius: 3px;
+      box-shadow: 0 0 8px rgba(201,168,76,0.6);
+    }
+
+    /* ── Swipe hint (only on first load) ── */
+    .ci-swipe-hint {
+      position: absolute;
+      bottom: 88px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; align-items: center; gap: 8px;
+      z-index: 10;
+      opacity: 0;
+      animation: ci-hint-show 1s ease 1.2s forwards, ci-hint-hide 0.6s ease 3.5s forwards;
+      pointer-events: none;
+    }
+    @keyframes ci-hint-show { to { opacity: 1; } }
+    @keyframes ci-hint-hide { to { opacity: 0; } }
+    .ci-swipe-arrow {
+      font-size: 18px; color: rgba(201,168,76,0.6);
+      animation: ci-swipe-bounce 1.4s ease-in-out infinite;
+    }
+    .ci-swipe-arrow.left { animation-delay: 0.2s; }
+    @keyframes ci-swipe-bounce {
+      0%,100% { transform: translateX(0); }
+      50%      { transform: translateX(5px); }
+    }
+    .ci-swipe-text {
+      font-family: 'Cinzel', serif;
+      font-size: 9px; letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.45);
+      white-space: nowrap;
+    }
+
+    /* ── Corner art deco brackets on each slide ── */
+    .ci-corner {
+      position: absolute; width: 18px; height: 18px;
+      opacity: 0.28; pointer-events: none; z-index: 1;
+    }
+    .ci-corner.tl { top: 70px; left: 20px;
+      border-top: 1px solid #c9a84c; border-left: 1px solid #c9a84c; }
+    .ci-corner.tr { top: 70px; right: 20px;
+      border-top: 1px solid #c9a84c; border-right: 1px solid #c9a84c; }
+    .ci-corner.bl { bottom: 30px; left: 20px;
+      border-bottom: 1px solid #c9a84c; border-left: 1px solid #c9a84c; }
+    .ci-corner.br { bottom: 30px; right: 20px;
+      border-bottom: 1px solid #c9a84c; border-right: 1px solid #c9a84c; }
+
+    /* hero-img hidden but kept for GSAP scroll compat */
+    .hero-img { display: none; }
+
+    /* glass hidden */
+    .glass { display: none; }
+
+    /* HEART ANIMATION SECTION */
+    .heart-section {
+      position: relative; height: 100vh; width: 100%;
+      overflow: hidden; background: #000; z-index: 20;
+    }
+    #heart-canvas {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      max-width: 100%; max-height: 100vh;
+    }
+    #heart-video { display: none; }
+    
+    /* FIRST FRAME IMAGE */
+    .first-frame-png {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      max-width: 86.5%; max-height: auto;
+      pointer-events: none; z-index: 6; 
+      will-change: opacity;
+      opacity: 1; 
+    }
+    
+    .heart-png {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      max-width: 100%; max-height: 100vh; opacity: 0;
+      transition: opacity 0.3s ease; pointer-events: none; z-index: 5;
+    }
+    .heart-png.show { opacity: 1; }
+
+    /* VIDEO HERO SECTION */
+    .video-hero-section {
+      position: relative; width: 100%; height: 100vh;
+      isolation: isolate; z-index: 15; overflow: hidden; margin-top: -100vh;
+    }
+    .video-hero-section video {
+      position: absolute; width: 100%; height: 100%;
+      object-fit: cover; filter: contrast(1.1) brightness(0.95);
+    }
+    .video-hero-section::after {
+      content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.15); z-index: 1;
+    }
+    .video-hero-text {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1, 3.2);
+      width: 100%; padding: 0 5%; font-size: 17vw; font-weight: 900;
+      text-transform: uppercase; line-height: 0.75; text-align: center;
+      color: rgba(255,255,255,0.95); mix-blend-mode: difference;
+      z-index: 2; font-family: "Arial Black", Arial, sans-serif;
+    }
+    .video-hero-text span { display: block; white-space: nowrap; }
+
+    /* =========================================================
+       PART 2 CSS (BOOK SECTION)
+       ========================================================= */
+    :root {
+      --bg: #0d0b08;
+      --leather: #2a1f14;
+      --leather-dark: #1a1208;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-dim: #6a5828;
+      --page: #f5efe6;
+      --ink: #2c1f0e;
+      --text: #e8dcc8;
+    }
+
+    #book-section {
+      position: relative;
+      background: var(--bg);
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 16px 80px;
+      z-index: 20;
+    }
+
+    #site-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(16px, 3vw, 24px);
+      font-weight: 700;
+      letter-spacing: 0.42em; color: var(--gold-dim);
+      text-transform: uppercase;
+      margin-bottom: 28px; text-align: center;
+      opacity: 0; 
+    }
+
+    #book-scene {
+      position: relative;
+      width: min(800px, 96vw);
+      transform-origin: center center;
+    }
+
+    #book-shadow {
+      position: absolute;
+      bottom: -24px; left: 8%; right: 8%; height: 36px;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.72) 0%, transparent 70%);
+      filter: blur(12px); z-index: 0;
+    }
+
+    #book-cover {
+      position: relative; width: 100%;
+      border-radius: 5px 22px 22px 5px;
+      background: linear-gradient(140deg, #120d07 0%, #2a1f14 40%, #3d2a16 70%, #1e1509 100%);
+      box-shadow:
+        -8px 0 0 #0c0803,
+        inset -5px 0 16px rgba(0,0,0,0.75),
+        inset 5px 0 8px rgba(255,190,70,0.03),
+        12px 18px 55px rgba(0,0,0,0.97),
+        0 6px 22px rgba(0,0,0,0.9);
+      cursor: pointer; overflow: hidden; z-index: 10;
+      aspect-ratio: 0.72;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      user-select: none;
+    }
+    #book-cover::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        2deg, transparent, transparent 4px,
+        rgba(0,0,0,0.055) 4px, rgba(0,0,0,0.055) 5px);
+      border-radius: inherit;
+    }
+    #book-cover::after {
+      content: ''; position: absolute; inset: 16px;
+      border: 1px solid rgba(201,168,76,0.28);
+      border-radius: 3px 15px 15px 3px; pointer-events: none;
+    }
+    .cover-inner-b {
+      position: absolute; inset: 25px;
+      border: 1px solid rgba(201,168,76,0.10);
+      border-radius: 2px 12px 12px 2px; pointer-events: none;
+    }
+    .cover-heart {
+      font-size: clamp(36px, 7vw, 58px);
+      margin-bottom: 12px; position: relative; z-index: 2;
+      filter: drop-shadow(0 0 18px rgba(201,168,76,0.55));
+      animation: hb 2.4s ease-in-out infinite;
+    }
+    .cover-divider {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; position: relative; z-index: 2; width: 60%;
+    }
+    .cover-divider::before, .cover-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim));
+    }
+    .cover-divider::after { background: linear-gradient(to left, transparent, var(--gold-dim)); }
+    .cover-divider span { font-size: 11px; color: var(--gold-dim); }
+    .cover-title {
+      font-family: 'Cinzel', serif; font-size: clamp(18px, 4vw, 30px);
+      letter-spacing: 0.22em; color: var(--gold); text-transform: uppercase;
+      text-shadow: 0 0 28px rgba(201,168,76,0.45); position: relative;
+      z-index: 2; text-align: center; padding: 0 32px; line-height: 1.3;
+    }
+    .cover-sub {
+      font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: clamp(12px, 2vw, 15px); color: var(--gold-dim);
+      letter-spacing: 0.14em; margin-top: 10px; position: relative; z-index: 2;
+    }
+    .cover-cta {
+      position: absolute; bottom: clamp(18px, 3vw, 28px);
+      font-family: 'Cinzel', serif; font-size: clamp(10px, 1.8vw, 14px);
+      font-weight: bold; letter-spacing: 0.25em; color: var(--gold-dim);
+      text-transform: uppercase; z-index: 2;
+      animation: breathe 2s ease-in-out infinite;
+    }
+
+    #open-book { display: none; width: 100%; position: relative; z-index: 10; }
+    #open-book.vis { display: flex; }
+    #spine {
+      width: clamp(20px, 3.5vw, 32px); flex-shrink: 0;
+      background: linear-gradient(to right, #0f0b06, #2a1f14, #1a1208, #0f0b06);
+      box-shadow: inset -3px 0 10px rgba(0,0,0,0.6), inset 3px 0 6px rgba(0,0,0,0.4);
+      border-radius: 6px 0 0 6px; display: flex; align-items: center; justify-content: center;
+    }
+    #spine::after {
+      content: 'LOYAL HEART'; font-family: 'Cinzel', serif; font-size: clamp(5px, 0.9vw, 7px);
+      letter-spacing: 0.4em; color: var(--gold-dim); white-space: nowrap;
+      writing-mode: vertical-rl; transform: rotate(180deg);
+    }
+    #pages-wrapper {
+      flex: 1; position: relative; overflow: hidden; border-radius: 0 20px 20px 0;
+      box-shadow: 8px 14px 50px rgba(0,0,0,0.85); perspective: 1200px;
+      aspect-ratio: 1.38; background: var(--page);
+    }
+    .spread { position: absolute; inset: 0; display: flex; }
+    .page-l, .page-r {
+      flex: 1; position: relative; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: clamp(14px, 2.8vw, 34px) clamp(10px, 2.2vw, 26px);
+      overflow: hidden; cursor: pointer;
+    }
+    .page-l { background: linear-gradient(135deg, #f8f2ea 0%, #f2ece2 100%); border-right: 1px solid #d0c4b0; }
+    .page-r { background: linear-gradient(225deg, #f8f2ea 0%, #f2ece2 100%); border-radius: 0 20px 20px 0; }
+    .page-l::after {
+      content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 26px;
+      background: linear-gradient(to right, transparent, rgba(0,0,0,0.07)); pointer-events: none;
+    }
+    .page-r::before {
+      content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 26px;
+      background: linear-gradient(to left, transparent, rgba(0,0,0,0.055)); pointer-events: none; z-index: 1;
+    }
+    .page-l::before {
+      content: ''; position: absolute; top: 16px; left: 18px; right: 18px; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(44,31,14,0.08), transparent);
+    }
+    .page-r .bottom-rule, .page-l .bottom-rule {
+      position: absolute; bottom: 16px; left: 18px; right: 18px; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(44,31,14,0.06), transparent);
+    }
+    .page-inner {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; height: 100%; position: relative; z-index: 2; transition: transform 0.28s ease;
+    }
+    .page-l:hover .page-inner, .page-r:hover .page-inner { transform: scale(1.03); }
+
+    .ch-label {
+      font-family: 'Cinzel', serif; font-size: clamp(6px, 0.95vw, 8.5px);
+      letter-spacing: 0.42em; text-transform: uppercase; color: rgba(44,31,14,0.32);
+      margin-bottom: clamp(7px, 1.4vw, 13px);
+    }
+    .ch-icon { font-size: clamp(22px, 4.5vw, 40px); margin-bottom: clamp(7px, 1.4vw, 13px); line-height: 1; }
+    .ch-title {
+      font-family: 'Cormorant Garamond', serif; font-size: clamp(18px, 3.8vw, 36px);
+      font-weight: 600; color: var(--ink); letter-spacing: 0.03em;
+      text-align: center; margin-bottom: clamp(7px, 1.4vw, 13px); line-height: 1.1;
+    }
+    .ch-rule { width: 34px; height: 1.5px; margin: 0 auto clamp(7px, 1.4vw, 13px); border-radius: 1px; }
+    .ch-desc {
+      font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: clamp(9px, 1.7vw, 13.5px); color: rgba(44,31,14,0.48);
+      text-align: center; line-height: 1.7; max-width: 155px;
+    }
+    .ch-enter {
+      margin-top: clamp(9px, 1.8vw, 17px); font-family: 'Cinzel', serif;
+      font-size: clamp(5.5px, 0.9vw, 7.5px); letter-spacing: 0.3em;
+      text-transform: uppercase; color: rgba(44,31,14,0.22);
+      border-bottom: 1px solid rgba(44,31,14,0.10); padding-bottom: 2px;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .page-l:hover .ch-enter, .page-r:hover .ch-enter { color: rgba(44,31,14,0.52); border-color: rgba(44,31,14,0.26); }
+    .ch-tap-explore {
+      font-family: 'Cormorant Garamond', serif; font-weight: 600; color: var(--ink);
+      font-size: clamp(12px, 2vw, 15px); letter-spacing: 0.03em; text-align: center;
+      margin-top: clamp(6px, 1.2vw, 10px);
+    }
+    .page-num {
+      position: absolute; bottom: 12px; font-family: 'IM Fell English', serif;
+      font-style: italic; font-size: 11px; color: rgba(44,31,14,0.22);
+    }
+    .page-l .page-num { left: 20px; }
+    .page-r .page-num { right: 20px; }
+    .page-empty {
+      display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;
+      font-family: 'IM Fell English', serif; font-style: italic; font-size: clamp(11px, 1.8vw, 15px);
+      color: rgba(44,31,14,0.15); pointer-events: none;
+    }
+
+    #flip-layer {
+      position: absolute; inset: 0; transform-style: preserve-3d;
+      pointer-events: none; z-index: 20; display: none;
+    }
+    #flip-page {
+      position: absolute; top: 0; right: 0; bottom: 0; width: 50%;
+      transform-origin: left center; transform-style: preserve-3d; pointer-events: none;
+    }
+    .flip-face {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      overflow: hidden; background: var(--page);
+    }
+    .flip-face.flip-back { transform: rotateY(180deg); }
+    .flip-face::before {
+      content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 16px;
+      background: linear-gradient(to right, rgba(0,0,0,0.12), transparent);
+      z-index: 10; pointer-events: none;
+    }
+    #flip-page.flip-next { animation: fNext 0.72s cubic-bezier(0.45,0,0.55,1) forwards; }
+    #flip-page.flip-prev { animation: fPrev 0.72s cubic-bezier(0.45,0,0.55,1) forwards; }
+    @keyframes fNext { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(-180deg); } }
+    @keyframes fPrev { 0% { transform: rotateY(-180deg); } 100% { transform: rotateY(0deg); } }
+
+    #nav-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: clamp(14px, 4vw, 32px); margin-top: clamp(16px, 3vw, 28px);
+      opacity: 0; transition: opacity 0.8s 0.3s;
+    }
+    #nav-row.vis { opacity: 1; }
+    .nav-btn {
+      background: none; border: 1px solid var(--gold-dim); color: var(--gold-dim);
+      width: clamp(38px, 6vw, 50px); height: clamp(38px, 6vw, 50px);
+      border-radius: 50%; cursor: pointer; font-size: clamp(13px, 2.2vw, 18px);
+      display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+    }
+    .nav-btn:hover { color: var(--gold); border-color: var(--gold); box-shadow: 0 0 18px rgba(201,168,76,0.25); }
+    .nav-btn:disabled { opacity: 0.18; cursor: default; box-shadow: none; }
+    .nav-center { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    #page-counter {
+      font-family: 'Cinzel', serif; font-size: clamp(8px, 1.4vw, 10px);
+      letter-spacing: 0.26em; color: var(--gold-dim); min-width: 64px; text-align: center;
+    }
+    .turn-page-text {
+      font-family: 'IM Fell English', serif; font-style: italic; font-weight: bold;
+      font-size: clamp(16px, 2.5vw, 22px); color: var(--gold-dim); opacity: 0.85;
+      letter-spacing: 0.05em; animation: bounceText 1s ease-in-out infinite;
+    }
+    @keyframes bounceText { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+    #cat-view {
+      position: fixed; inset: 0; z-index: 9000;
+      background: var(--bg); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; opacity: 0; pointer-events: none;
+      transition: opacity 0.5s; overflow: hidden;
+      font-family: 'Cormorant Garamond', serif;
+    }
+    #cat-view::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, #1e1508 0%, #060503 70%);
+    }
+    #cat-view.vis { opacity: 1; pointer-events: all; }
+    .cv-z { position: relative; z-index: 2; }
+    #cv-ch {
+      font-family: 'Cinzel', serif; font-size: clamp(8px, 1.4vw, 10px);
+      letter-spacing: 0.46em; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 16px;
+    }
+    #cv-ic { font-size: clamp(38px, 8vw, 62px); margin-bottom: 14px; filter: drop-shadow(0 0 22px rgba(201,168,76,0.45)); }
+    #cv-nm {
+      font-family: 'Cormorant Garamond', serif; font-size: clamp(38px, 8.5vw, 76px);
+      font-weight: 300; color: var(--gold-light); letter-spacing: 0.04em;
+      margin-bottom: 8px; text-align: center;
+    }
+    #cv-rl { width: 56px; height: 1.5px; margin: 0 auto 20px; border-radius: 1px; }
+    #cv-ds {
+      font-family: 'IM Fell English', serif; font-style: italic; font-size: clamp(13px, 2.4vw, 17px);
+      color: rgba(232,220,200,0.42); max-width: 380px; text-align: center;
+      line-height: 1.9; margin-bottom: 42px;
+    }
+    #cv-bk {
+      font-family: 'Cinzel', serif; font-size: clamp(7px, 1.3vw, 9px); letter-spacing: 0.36em;
+      text-transform: uppercase; color: var(--gold-dim); background: none; border: 1px solid var(--gold-dim);
+      padding: clamp(10px, 2vw, 13px) clamp(22px, 4vw, 34px); cursor: pointer; transition: all 0.35s;
+    }
+    #cv-bk:hover { color: var(--gold); border-color: var(--gold); box-shadow: 0 0 26px rgba(201,168,76,0.22); }
+    .fpar { position: absolute; border-radius: 50%; pointer-events: none; }
+
+    /* =========================================================
+       FOOTER CSS
+       ========================================================= */
+    .site-footer {
+      background: #060503; 
+      border-top: 1px solid rgba(201,168,76,0.15);
+      padding: 60px 20px 40px;
+      text-align: center;
+      position: relative;
+      z-index: 20;
+    }
+    
+    .footer-title {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      letter-spacing: 0.3em;
+      color: #c9a84c;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    
+    .footer-desc {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      color: rgba(232,220,200,0.5);
+      font-size: 16px;
+      margin-bottom: 35px;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-links a {
+      color: rgba(201,168,76,0.7);
+      text-decoration: none;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+      color: #fff;
+      text-shadow: 0 0 10px rgba(201,168,76,0.5);
+    }
+    
+    .footer-copy {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.05em;
+    }
+
+    /* =========================================================
+       GLOBAL LIKE BUTTON
+       ========================================================= */
+    .global-like-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      background: rgba(10, 7, 4, 0.85);
+      border: 1px solid rgba(201, 168, 76, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .global-like-container:hover {
+      border-color: #c9a84c;
+      box-shadow: 0 0 20px rgba(201, 168, 76, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .heart-icon {
+      font-size: 24px;
+      color: #c9a84c;
+      line-height: 1;
+      margin-top: 2px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Animation class added via JS when clicked */
+    .heart-pop {
+      animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes heartPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="preloader" id="preloader">
+    
+    <div class="initial-loader" id="initialLoader">
+        <div class="loader-text">Loyal Heart</div>
+        <div class="loader-line-container">
+            <div class="loader-line"></div>
+        </div>
+    </div>
+
+    <div class="marquee-row" id="row1">
+        <div class="marquee-content">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+        </div>
+    </div>
+    <div class="marquee-row" id="row2">
+        <div class="marquee-content">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+        </div>
+    </div>
+    <div class="marquee-row" id="row3">
+        <div class="marquee-content">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+        </div>
+    </div>
+    <div class="marquee-row" id="row4">
+        <div class="marquee-content">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+        </div>
+    </div>
+    <div class="marquee-row" id="row5">
+        <div class="marquee-content">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+            <img src="loyal-heart-logo.png" class="marquee-logo" alt="Loyal Heart">
+        </div>
+    </div>
+</div>
+
+<button class="search-icon" id="searchIcon">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+</button>
+
+<div class="search-overlay" id="searchOverlay">
+    <button class="search-close" id="searchClose">×</button>
+    <div class="search-container">
+        <div class="search-icon-static">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        <input type="text" class="search-input" placeholder="Search" id="searchInput">
+    </div>
+</div>
+
+<div class="top-logo" id="topLogo">
+    <img src="your-logo.png" alt="Logo">
+</div>
+
+<button class="menu-btn" id="menuBtn">
+    <span></span><span></span>
+</button>
+
+<div class="menu-overlay-screen" id="menuOverlayScreen">
+    <div class="menu-content-wrapper">
+        <ul class="nav-list" id="navList">
+            <li style="--i: 1;">
+                <a href="#chaptersIntroSection" class="menu-link">Explore chapters</a>
+            </li>
+            
+            <li style="--i: 2;">
+                <a href="#book-section" class="menu-link">Book of chapters</a>
+            </li>
+            
+            <li style="--i: 3;" class="accordion-item">
+                <a href="#" class="accordion-toggle">Notice <span class="toggle-icon">+</span></a>
+                <div class="accordion-content">
+                    <p>Welcome to Loyal heart.<br>
+We’re glad you’re here! Our website is currently under development, and we are working hard to bring you a great experience.<br>
+New content will be available soon.<br>
+Please check back for updates.<br>
+Thank you for your patience and support.</p>
+                </div>
+            </li>
+            
+            <li style="--i: 4;" class="accordion-item">
+                <a href="#" class="accordion-toggle">Contact us <span class="toggle-icon">+</span></a>
+                <div class="accordion-content">
+                    <p>Email: <a href="mailto:contact.loyalheart@gmail.com" style="color:inherit;">contact.loyalheart@gmail.com</a><br>If you have any questions, suggestions, or inquiries, feel free to reach out to us.<br>Thank you for connecting with Loyal heart.</p>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="main-site" id="mainSite">
+
+  <section class="hero" id="hero">
+
+    <img src="" class="hero-img" id="heroImg" style="display:none">
+
+    <div class="hero-topline"></div>
+
+    <div class="hero-corner tl"></div>
+    <div class="hero-corner tr"></div>
+    <div class="hero-corner bl"></div>
+    <div class="hero-corner br"></div>
+
+    <div class="hero-tick l"></div>
+    <div class="hero-tick r"></div>
+
+    <div class="hero-aura"></div>
+
+    <div class="hero-center" id="heroText">
+      <div class="hero-eyebrow">A Legacy of Love</div>
+
+      <div class="hero-orn-row">
+        <div class="hero-orn-line"></div>
+        <div class="hero-orn-dot"></div>
+        <div class="hero-orn-diam"></div>
+        <div class="hero-orn-dot"></div>
+        <div class="hero-orn-line r"></div>
+      </div>
+
+      <div class="hero-word-loyal"><span>LOYAL</span></div>
+      <div class="hero-word-heart"><span>HEART</span></div>
+
+      <div class="hero-title-line"></div>
+
+      <div class="hero-subtitle">Where trust becomes legacy</div>
+
+      <div class="hero-vrule"></div>
+
+      <div class="hero-credit">
+        <div class="hero-credit-line"></div>
+        <span class="hero-credit-text">designed by &nbsp;</span>
+        <span class="hero-credit-name">Ravi</span>
+        <div class="hero-credit-line"></div>
+      </div>
+    </div>
+
+    <div class="glass" id="glass" style="display:none"></div>
+
+    <div class="scroll-down-indicator" id="scrollDownIndicator">
+      <span class="scroll-down-text">Scroll</span>
+      <img src="scroll-down-icon.png" class="scroll-down-icon" alt="Scroll Down">
+    </div>
+
+  </section>
+
+  <section class="chapters-intro-section" id="chaptersIntroSection">
+
+    <div class="ci-track" id="ciTrack"></div>
+
+    <div class="ci-dots" id="ciDots"></div>
+
+    <div class="ci-swipe-hint">
+      <span class="ci-swipe-arrow left">←</span>
+      <span class="ci-swipe-text">Swipe</span>
+      <span class="ci-swipe-arrow">→</span>
+    </div>
+
+  </section>
+
+  <section class="heart-section" id="heartSection">
+    
+    <img src="Heart-first-frame.png" id="firstFrameImg" class="first-frame-png" alt="First Frame">
+
+    <video id="heart-video" preload="auto" playsinline muted>
+      <source src="heart_animation.mp4" type="video/mp4">
+    </video>
+    <canvas id="heart-canvas"></canvas>
+    <img src="heart-final-frame.png" id="heart-png" class="heart-png" alt="Heart">
+    
+    <div class="heart-scroll-indicator" id="heartScrollIndicator">
+      <span class="heart-scroll-text">Scroll down slowly</span>
+      <img src="scroll-down-icon.png" class="heart-scroll-icon" alt="Scroll Down">
+    </div>
+  </section>
+
+  <section class="video-hero-section" id="videoHeroSection">
+    <video autoplay muted loop playsinline>
+      <source src="video.mp4" type="video/mp4">
+    </video>
+    <div class="video-hero-text">
+      <span>BUILT ON</span>
+      <span>TRUST</span>
+      <span>DRIVEN BY</span>
+      <span>HEART</span>
+    </div>
+  </section>
+
+  <section id="book-section">
+    <div id="site-title">Loyal Heart · Book of Chapters</div>
+  
+    <div id="book-scene">
+      <div id="book-shadow"></div>
+  
+      <div id="book-cover">
+        <div class="cover-inner-b"></div>
+        <div class="cover-heart">♡</div>
+        <div class="cover-divider"><span>✦</span></div>
+        <div class="cover-title">Loyal Heart</div>
+        <div class="cover-sub">A collection of chapters</div>
+        <div class="cover-cta">Open the book</div>
+      </div>
+  
+      <div id="open-book">
+        <div id="spine"></div>
+        <div id="pages-wrapper">
+  
+          <div class="spread" id="current-spread">
+            <div class="page-l" id="pg-left" onclick="enterCat(0)">
+              <div class="page-inner" id="left-inner"></div>
+              <div class="page-num" id="left-num"></div>
+              <div class="bottom-rule"></div>
+            </div>
+            <div class="page-r" id="pg-right" onclick="enterCat(1)">
+              <div class="page-inner" id="right-inner"></div>
+              <div class="page-num" id="right-num"></div>
+              <div class="bottom-rule"></div>
+            </div>
+          </div>
+  
+          <div id="flip-layer">
+            <div id="flip-page">
+              <div class="flip-face flip-front" id="flip-front"></div>
+              <div class="flip-face flip-back"  id="flip-back"></div>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+      
+      <div id="nav-row">
+        <button class="nav-btn" id="btn-prev" onclick="doFlip('prev')">←</button>
+        <div class="nav-center">
+          <div id="page-counter">1 — 2</div>
+          <div class="turn-page-text">Turn the page</div>
+        </div>
+        <button class="nav-btn" id="btn-next" onclick="doFlip('next')">→</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-title">Loyal Heart</div>
+      <div class="footer-desc">BUILT ON TRUST , DRIVEN BY HEART</div>
+      
+      <div style="margin-bottom: 40px;">
+        <div style="font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 0.2em; color: #c9a84c; text-transform: uppercase; margin-bottom: 10px;">
+          Contact Us
+        </div>
+        <a href="mailto:contact.contact.loyalheart@gmail.com" style="color: rgba(232,220,200,0.8); text-decoration: none; font-family: 'IM Fell English', serif; font-style: italic; font-size: 18px; display: block; margin-bottom: 12px; transition: color 0.3s ease;">
+          contact.loyalheart@gmail.com
+        </a>
+        <p style="font-family: 'Helvetica Neue', sans-serif; font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; max-width: 350px; margin: 0 auto;">
+          Our website is currently under development, and we are working hard to bring you a great experience.<br>
+NEW CONTENT WILL BE AVAILABLE SOON.<br>
+Please check back for updates.<br>
+Thank you for your patience and support.
+        </p>
+        <div style="margin-top: 25px; font-family: 'IM Fell English', serif; font-style: italic; font-size: 18px; color: rgba(232,220,200,0.8);">
+            Loved it? Let us know with a like!
+          </div>
+      </div>
+      
+      <div class="footer-copy">&copy; 2026 Loyal Heart. Designed by Ravi.</div>
+    </div>
+  </footer>
+
+</div> 
+
+<div id="cat-view">
+  <div class="cv-z" id="cv-ch">Chapter 01</div>
+  <div class="cv-z" id="cv-ic">📖</div>
+  <div class="cv-z" id="cv-nm">Stories</div>
+  <div class="cv-z" id="cv-rl"></div>
+  <div class="cv-z" id="cv-ds">Your stories, beautifully told.</div>
+  <button class="cv-z" id="cv-bk" onclick="closeCat()">← Close Chapter</button>
+</div>
+
+<script>
+  // Add this right at the top of your script to disable native browser auto-scrolling
+  if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+  }
+
+  // =============================================
+  // BACK NAVIGATION DETECTION — Skip preloader
+  // =============================================
+  function skipPreloaderAndRestore() {
+      const preloader = document.getElementById('preloader');
+      const mainSite = document.getElementById('mainSite');
+      const topLogo = document.getElementById('topLogo');
+      const menuBtn = document.getElementById('menuBtn');
+      const searchIcon = document.getElementById('searchIcon');
+      const scrollDownIndicator = document.getElementById('scrollDownIndicator');
+      const initialLoader = document.getElementById('initialLoader');
+
+      // Instantly hide preloader, show site
+      if (initialLoader) initialLoader.classList.add('hide');
+      preloader.classList.add('hide');
+      mainSite.classList.add('show');
+      topLogo.classList.add('show');
+      menuBtn.classList.add('show');
+      searchIcon.classList.add('show');
+      if (scrollDownIndicator) scrollDownIndicator.classList.add('show');
+
+      preloadAllChapters();
+
+      // Force scroll to top temporarily so GSAP calculates pinned section heights perfectly
+      window.scrollTo(0, 0);
+
+      initAnimations();
+      
+      initHeartAnimation(function onHeartReady() {
+          const savedScroll = sessionStorage.getItem('lh_scroll');
+          const savedSpread = sessionStorage.getItem('lh_spread');
+          const bookWasOpen = sessionStorage.getItem('lh_bookopen');
+
+          // Force GSAP to recalculate now that everything is loaded at scroll position 0
+          ScrollTrigger.refresh();
+
+          if (savedScroll) {
+              // Jump to exact saved pixel position AFTER calculations are done
+              requestAnimationFrame(() => {
+                  window.scrollTo(0, parseInt(savedScroll));
+                  
+                  // Let GSAP know we jumped so it updates the opacity/transforms correctly
+                  ScrollTrigger.refresh();
+
+                  // Restore book state
+                  if (bookWasOpen === 'true' && savedSpread !== null) {
+                      const targetSpread = parseInt(savedSpread);
+                      setTimeout(() => {
+                          openBook();
+                          setTimeout(() => { spread = targetSpread; renderSpread(targetSpread); }, 700);
+                      }, 100);
+                  }
+              });
+          }
+      });
+  }
+
+// Save scroll + book state when user leaves page
+window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('lh_scroll', window.scrollY);
+    sessionStorage.setItem('lh_spread', spread);
+    sessionStorage.setItem('lh_bookopen', isOpen);
+});
+
+// Handle BFCache restore (iPhone Safari & modern Chrome)
+window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+        if (window._heartCtx && window._extractedHeartFrames && window._lastHeartFrame !== undefined) {
+            var frame = window._extractedHeartFrames[window._lastHeartFrame];
+            if (frame) window._heartCtx.putImageData(frame, 0, 0);
+        }
+        if (window.ScrollTrigger) ScrollTrigger.refresh();
+        return;
+    }
+});
+
+// PRELOADER & INITIALIZATION
+window.addEventListener('load', function() {
+    const preloader = document.getElementById('preloader');
+    const mainSite = document.getElementById('mainSite');
+    const topLogo = document.getElementById('topLogo');
+    const menuBtn = document.getElementById('menuBtn');
+    const searchIcon = document.getElementById('searchIcon');
+    const scrollDownIndicator = document.getElementById('scrollDownIndicator');
+    const initialLoader = document.getElementById('initialLoader'); // Target the new loader
+
+    const isReturning = sessionStorage.getItem('lh_returning') === 'true';
+    sessionStorage.removeItem('lh_returning');
+
+    if (isReturning) {
+        skipPreloaderAndRestore();
+        return;
+    }
+
+    if (initialLoader) {
+        initialLoader.classList.add('hide');
+    }
+
+    setTimeout(() => document.getElementById('row3').classList.add('active'), 300);
+    setTimeout(() => document.getElementById('row2').classList.add('active'), 600);
+    setTimeout(() => document.getElementById('row4').classList.add('active'), 800);
+    setTimeout(() => document.getElementById('row1').classList.add('active'), 1000);
+    setTimeout(() => document.getElementById('row5').classList.add('active'), 1200);
+
+    setTimeout(() => preloader.classList.add('closing'), 3200);
+    setTimeout(() => preloader.classList.add('step2'), 3600);
+    setTimeout(() => preloader.classList.add('step3'), 4000);
+
+    setTimeout(() => {
+        preloader.classList.add('hide');
+        mainSite.classList.add('show');
+        topLogo.classList.add('show');
+        menuBtn.classList.add('show');
+        searchIcon.classList.add('show');
+        scrollDownIndicator.classList.add('show');
+        
+        initAnimations();
+        initHeartAnimation();
+        preloadAllChapters(); 
+    }, 4000);
+});
+
+// GSAP SCROLL ANIMATIONS (Page 1)
+function initAnimations() {
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.create({
+        trigger: "#heartSection",
+        start: "top top",
+        onEnter:     () => gsap.to("#firstFrameImg", { opacity: 0, duration: 0.2 }),
+        onLeaveBack: () => gsap.to("#firstFrameImg", { opacity: 1, duration: 0.2 })
+    });
+}
+
+// BOOK ZOOM INITIALIZATION
+function initBookAnimation() {
+    gsap.fromTo("#book-scene",
+      { scale: 0.5, opacity: 0 },
+      {
+        scale: 1, opacity: 1, ease: "none",
+        scrollTrigger: {
+          trigger: "#book-section",
+          start: "top bottom", 
+          end: "center center", 
+          scrub: true 
+        }
+      }
+    );
+
+    gsap.fromTo("#site-title",
+      { opacity: 0 },
+      {
+        opacity: 1, ease: "none",
+        scrollTrigger: {
+          trigger: "#book-section",
+          start: "top 80%",
+          end: "center center",
+          scrub: true
+        }
+      }
+    );
+}
+
+// HEART ANIMATION SECTION (Page 2) - UPDATED FOR CLOUDFLARE/ANDROID
+function initHeartAnimation(onReadyCallback) {
+    const TOTAL_FRAMES = 60;
+    const VIDEO_DURATION = 7.84;
+    
+    const video = document.getElementById('heart-video');
+    const canvas = document.getElementById('heart-canvas');
+    const ctx = canvas.getContext('2d');
+    const heartSection = document.getElementById('heartSection');
+    const heartPng = document.getElementById('heart-png');
+    const heartScrollIndicator = document.getElementById('heartScrollIndicator');
+    
+    const extractedFrames = [];
+    let currentFrame = 0;
+
+    window._heartCtx = ctx;
+    window._extractedHeartFrames = extractedFrames;
+    window._lastHeartFrame = 0;
+    
+    function setupCanvas() {
+        const width = video.videoWidth || 768;
+        const height = video.videoHeight || 1376;
+        canvas.width = width; canvas.height = height;
+        const scale = Math.min(window.innerWidth / width, window.innerHeight / height, 1);
+        canvas.style.width = `${width * scale}px`; canvas.style.height = `${height * scale}px`;
+    }
+    
+    async function extractFrames() {
+        return new Promise((resolve) => {
+            const extractCanvas = document.createElement('canvas');
+            const extractCtx = extractCanvas.getContext('2d');
+            extractCanvas.width = video.videoWidth || 768; 
+            extractCanvas.height = video.videoHeight || 1376;
+            
+            let frameIndex = 0;
+            
+            function captureFrame() {
+                if (frameIndex >= TOTAL_FRAMES) { resolve(); return; }
+                const time = (frameIndex / (TOTAL_FRAMES - 1)) * VIDEO_DURATION;
+                
+                function onSeeked() {
+                    // Small delay to ensure Android GPU paints frame
+                    setTimeout(() => {
+                        extractCtx.drawImage(video, 0, 0, extractCanvas.width, extractCanvas.height);
+                        extractedFrames.push(extractCtx.getImageData(0, 0, extractCanvas.width, extractCanvas.height));
+                        frameIndex++; 
+                        captureFrame();
+                    }, 40); 
+                }
+
+                video.addEventListener('seeked', onSeeked, { once: true });
+                video.currentTime = time; 
+            }
+            captureFrame();
+        });
+    }
+    
+    function render(frameIndex) {
+        const index = Math.round(Math.max(0, Math.min(TOTAL_FRAMES - 1, frameIndex)));
+        const frameData = extractedFrames[index];
+        if (frameData) {
+            ctx.putImageData(frameData, 0, 0);
+            window._lastHeartFrame = index; 
+        }
+    }
+    
+    async function init() {
+        try {
+            // THE FIX: Fetch video as a Blob so Cloudflare 206 range errors on Android don't occur
+            const response = await fetch('heart_animation.mp4');
+            const blob = await response.blob();
+            video.src = URL.createObjectURL(blob);
+
+            if (video.readyState < 2) {
+                await new Promise(resolve => video.addEventListener('loadeddata', resolve, { once: true }));
+            }
+            
+            setupCanvas(); 
+            await extractFrames(); 
+            render(0);
+            
+            let heartTl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#heartSection", start: "top top", end: "+=250%",
+                    scrub: 0.5, pin: true, anticipatePin: 1,
+                    onUpdate: (self) => {
+                        const progress = self.progress;
+                        if (progress <= 0.75) {
+                            const animProgress = progress / 0.75;
+                            const targetFrame = animProgress * (TOTAL_FRAMES - 1);
+                            currentFrame += (targetFrame - currentFrame) * 0.15;
+                            render(currentFrame);
+                            if (heartPng) heartPng.classList.remove('show');
+                            canvas.style.opacity = 1;
+                            if (heartScrollIndicator) {
+                                heartScrollIndicator.style.opacity = '1';
+                                heartScrollIndicator.style.transform = 'translateX(-50%) translateY(0)';
+                            }
+                            gsap.set(heartSection, { y: "0%", opacity: 1, scale: 1 });
+                        } else {
+                            render(TOTAL_FRAMES - 1);
+                            if (heartPng) heartPng.classList.add('show');
+                            canvas.style.opacity = 0;
+                            const revealProgress = (progress - 0.75) / 0.25;
+                            const yMove = revealProgress * -100;
+                            const scale = 1 - (revealProgress * 0.2);
+                            gsap.set(heartSection, { y: `${yMove}%`, scale: scale, opacity: 1 - (revealProgress * 0.3) });
+                            if (heartScrollIndicator) {
+                                const indicatorY = revealProgress * -100;
+                                const fadeProgress = revealProgress > 0.5 ? (revealProgress - 0.5) * 2 : 0;
+                                heartScrollIndicator.style.transform = `translateX(-50%) translateY(${indicatorY}vh)`;
+                                heartScrollIndicator.style.opacity = 1 - fadeProgress;
+                            }
+                        }
+                    }
+                }
+            });
+
+            initBookAnimation();
+            ScrollTrigger.refresh();
+
+            if (typeof onReadyCallback === 'function') onReadyCallback();
+            
+        } catch (error) {
+            console.error("Heart Animation Init Failed:", error);
+        }
+    }
+    init();
+
+    if (window._heartResizeHandler) {
+        window.removeEventListener('resize', window._heartResizeHandler);
+    }
+    window._heartResizeHandler = setupCanvas;
+    window.addEventListener('resize', window._heartResizeHandler);
+}
+
+// CHAPTERS INTRO — FULL-SCREEN SWIPE CAROUSEL
+(function() {
+  const INTRO_CATS = [
+    { 
+      isCover: true, 
+      color: '#c9a84c', 
+      eyebrow: 'Explore the collection', 
+      title: 'Loyal Heart', 
+      subtitle: 'Ten <span>chapters</span> of<br>your heart\'s story',
+      extraText: 'Note : You can explore all the chapters by tapping the ‘Tap to Explore’ button in the Book of Chapters.'
+    },
+    { name:'Stories',      icon:'📖', color:'#c9a84c', desc:'Your stories, beautifully told.'},
+    { name:'Quotes',       icon:'✦',  color:'#b8c0d0', desc:'Words that move hearts.'},
+    { name:'Reels',        icon:'🎞', color:'#e07a30', desc:'Moments captured in motion.'},
+    { name:'Psychology',   icon:'🧠', color:'#9b8ec4', desc:'Understand the mind, deeply.'},
+    { name:'Relationship', icon:'♡',  color:'#e8a0b4', desc:'Connection, love & growth.'},
+    { name:'Comedy',         icon:'😂', color:'#f0c040', desc:'Laughter is the best medicine.'},
+    { name:'Music',        icon:'♪',  color:'#60c8b0', desc:'Rhythm for every emotion.'},
+    { name:'Poll',         icon:'◎',  color:'#80b8e0', desc:'Your voice, your opinion.'},
+    { name:'Knowledge',    icon:'💡', color:'#d4c060', desc:'Learn something new every day.'},
+    { name:'Webseries',    icon:'🎬', color:'#e06878', desc:'Stories that unfold, episode by episode.'},
+  ];
+
+  const track   = document.getElementById('ciTrack');
+  const dotsEl  = document.getElementById('ciDots');
+  const section = document.getElementById('chaptersIntroSection');
+
+  let current   = 0;
+  let startX    = 0;
+  let startY    = 0;
+  let isDragging= false;
+  let dragDelta = 0;
+  let isLocked  = false; 
+
+  INTRO_CATS.forEach((cat, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'ci-slide' + (i === 0 ? ' active' : '');
+    const r = parseInt(cat.color.slice(1,3),16);
+    const g = parseInt(cat.color.slice(3,5),16);
+    const b = parseInt(cat.color.slice(5,7),16);
+    slide.style.setProperty('--slide-glow', `rgba(${r},${g},${b},0.09)`);
+    slide.style.setProperty('--slide-color', cat.color);
+
+    if (cat.isCover) {
+      slide.innerHTML = `
+        <div class="ci-slide-inner">
+          <div class="ci-cover-eyebrow">${cat.eyebrow}</div>
+          <div class="ci-cover-title">${cat.title}</div>
+          <div class="ci-cover-subtitle">${cat.subtitle}</div>
+          <div class="ci-cover-desc">${cat.extraText}</div>
+          <div class="ci-cover-rule"></div>
+        </div>
+      `;
+    } else {
+      slide.innerHTML = `
+        <div class="ci-corner tl"></div>
+        <div class="ci-corner tr"></div>
+        <div class="ci-corner bl"></div>
+        <div class="ci-corner br"></div>
+        <div class="ci-slide-inner">
+          <div class="ci-label">Chapter ${String(i).padStart(2,'0')}</div>
+          <div class="ci-icon">${cat.icon}</div>
+          <div class="ci-rule"></div>
+          <div class="ci-name">${cat.name}</div>
+          <div class="ci-desc">${cat.desc}</div>
+        </div>
+      `;
+    }
+    track.appendChild(slide);
+  });
+
+  const dots = [];
+  INTRO_CATS.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'ci-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(dot);
+    dots.push(dot);
+  });
+
+  const slides = track.querySelectorAll('.ci-slide');
+
+  function goTo(idx) {
+    const total = INTRO_CATS.length;
+    if (idx < 0) idx = total - 1; 
+    if (idx >= total) idx = 0;    
+
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = idx;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    track.style.transform = `translateX(${-current * 100}%)`;
+  }
+
+  section.addEventListener('touchstart', e => {
+    startX    = e.touches[0].clientX;
+    startY    = e.touches[0].clientY;
+    isDragging= true;
+    isLocked  = false;
+    dragDelta = 0;
+    track.classList.add('no-transition');
+  }, { passive: true });
+
+  section.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+
+    if (!isLocked && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+      isLocked = true;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        isDragging = false;
+        track.classList.remove('no-transition');
+        track.style.transform = `translateX(${-current * 100}%)`;
+        return;
+      }
+    }
+
+    if (!isLocked) return;
+    e.preventDefault(); 
+    dragDelta = dx;
+    const baseX = -current * window.innerWidth;
+    track.style.transform = `translateX(${baseX + dx}px)`;
+  }, { passive: false });
+
+  section.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    track.classList.remove('no-transition');
+    const threshold = window.innerWidth * 0.22;
+    if (dragDelta < -threshold) goTo(current + 1);
+    else if (dragDelta > threshold) goTo(current - 1);
+    else goTo(current); 
+    dragDelta = 0;
+  }, { passive: true });
+
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      slides[current].classList.add('active');
+      observer.disconnect();
+    }
+  }, { threshold: 0.3 });
+  observer.observe(section);
+
+  track.classList.add('no-transition');
+  track.style.transform = `translateX(0)`;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => track.classList.remove('no-transition'));
+  });
+
+})();
+
+// SEARCH OVERLAY 
+const searchIcon = document.getElementById('searchIcon');
+const searchOverlay = document.getElementById('searchOverlay');
+const searchClose = document.getElementById('searchClose');
+const searchInput = document.getElementById('searchInput');
+
+searchIcon.addEventListener('click', () => {
+    searchOverlay.classList.add('active');
+    setTimeout(() => searchInput.focus(), 100);
+});
+searchClose.addEventListener('click', () => {
+    searchOverlay.classList.remove('active'); searchInput.value = '';
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+        searchOverlay.classList.remove('active'); searchInput.value = '';
+    }
+});
+
+// MENU TOGGLE LOGIC + ACCORDIONS
+const menuBtn = document.getElementById('menuBtn');
+const menuOverlayScreen = document.getElementById('menuOverlayScreen');
+const menuLinks = document.querySelectorAll('.menu-link');
+const accordionToggles = document.querySelectorAll('.accordion-toggle');
+
+menuBtn.addEventListener('click', () => {
+    menuBtn.classList.toggle('open');
+    menuOverlayScreen.classList.toggle('active');
+    
+    if (menuOverlayScreen.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+});
+
+menuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        menuBtn.classList.remove('open');
+        menuOverlayScreen.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+});
+
+accordionToggles.forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        const parentLi = toggle.closest('.accordion-item');
+        parentLi.classList.toggle('open');
+    });
+});
+
+// BACKGROUND PRE-RENDERING LOGIC
+function preloadAllChapters() {
+  const urlsToLoad = CATS.map(cat => cat.link).filter(Boolean);
+
+  urlsToLoad.forEach((url, index) => {
+    setTimeout(() => {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'document';
+      link.href = url;
+      document.head.appendChild(link);
+    }, index * 200); 
+  });
+
+  if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+    const specScript = document.createElement('script');
+    specScript.type = 'speculationrules';
+    const rules = {
+      prefetch: [{
+        source: 'list',
+        urls: urlsToLoad,
+        eagerness: 'moderate' 
+      }]
+    };
+    specScript.textContent = JSON.stringify(rules);
+    document.head.appendChild(specScript);
+  }
+}
+
+// BOOK SECTION DATA & LOGIC
+const CATS = [
+  { name:'Stories',      icon:'📖', color:'#c9a84c', desc:'Your stories, beautifully told.', link:'final-story.html'},
+  { name:'Quotes',       icon:'✦',  color:'#b8c0d0', desc:'Words that move hearts.', link:'final-quote.html'},
+  { name:'Reels',        icon:'🎞', color:'#e07a30', desc:'Moments captured in motion.', link:'final-reels.html'},
+  { name:'Psychology',   icon:'🧠', color:'#9b8ec4', desc:'Understand the mind, deeply.', link:'final-psychology.html'},
+  { name:'Relationship', icon:'♡',  color:'#e8a0b4', desc:'Connection, love & growth.', link:'final-relationship.html'},
+  { name:'Comedy',         icon:'😂', color:'#f0c040', desc:'Laughter is the best medicine.', link:'final-comedy.html'},
+  { name:'Music',        icon:'♪',  color:'#60c8b0', desc:'Rhythm for every emotion.', link:'final-music.html'},
+  { name:'Poll',         icon:'◎',  color:'#80b8e0', desc:'Your voice, your opinion.', link:'final-polls.html'},
+  { name:'Knowledge',    icon:'💡', color:'#d4c060', desc:'Learn something new every day.', link:'final-knowledge.html'},
+  { name:'Webseries',    icon:'🎬', color:'#e06878', desc:'Stories that unfold, episode by episode.', link:'final-webseries.html'},
+];
+
+const ROMANS = ['i','ii','iii','iv','v','vi','vii','viii','ix','x'];
+const TOTAL_SPREADS = Math.ceil(CATS.length / 2);
+
+let spread = 0;
+let isFlipping = false;
+let isOpen = false;
+
+const domBookCover  = document.getElementById('book-cover');
+const domOpenBook   = document.getElementById('open-book');
+const domLeftInner  = document.getElementById('left-inner');
+const domRightInner = document.getElementById('right-inner');
+const domLeftNum    = document.getElementById('left-num');
+const domRightNum   = document.getElementById('right-num');
+const domPgLeft     = document.getElementById('pg-left');
+const domPgRight    = document.getElementById('pg-right');
+const domFlipLayer  = document.getElementById('flip-layer');
+const domFlipPage   = document.getElementById('flip-page');
+const domFlipFront  = document.getElementById('flip-front');
+const domFlipBack   = document.getElementById('flip-back');
+const domNavRow     = document.getElementById('nav-row');
+const domBtnPrev    = document.getElementById('btn-prev');
+const domBtnNext    = document.getElementById('btn-next');
+const domCounter    = document.getElementById('page-counter');
+const domCatView    = document.getElementById('cat-view');
+
+function cardHTML(cat, idx) {
+  return `
+    <div class="ch-label">Chapter ${String(idx+1).padStart(2,'0')}</div>
+    <div class="ch-icon">${cat.icon}</div>
+    <div class="ch-title">${cat.name}</div>
+    <div class="ch-rule" style="background:${cat.color}"></div>
+    <div class="ch-desc">${cat.desc}</div>
+    <div class="ch-enter">Open Chapter →</div>
+    <div class="ch-tap-explore">Tap to explore</div>
+  `;
+}
+
+function buildFaceHTML(idx, side) {
+  if (!CATS[idx]) {
+      return `<div style="width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center;"><div class="page-empty"></div></div>`;
+  }
+  let numPos = side === 'left' ? 'left:20px;' : 'right:20px;';
+  const inner = `
+    <div class="page-inner">${cardHTML(CATS[idx], idx)}</div>
+    <div class="page-num" style="position:absolute; bottom:12px; ${numPos} font-family:'IM Fell English',serif; font-style:italic; font-size:11px; color:rgba(44,31,14,0.22);">${ROMANS[idx]}</div>
+    <div class="bottom-rule" style="position:absolute; bottom:16px; left:18px; right:18px; height:1px; background:linear-gradient(to right,transparent,rgba(44,31,14,0.06),transparent);"></div>
+  `;
+  return `<div style="width:100%; height:100%; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:clamp(14px,2.8vw,34px) clamp(10px,2.2vw,26px);">${inner}</div>`;
+}
+
+function renderLeftBackground(li) {
+  if (CATS[li]) {
+    domLeftInner.innerHTML = cardHTML(CATS[li], li);
+    domLeftNum.textContent = ROMANS[li];
+    domPgLeft.style.pointerEvents = 'auto'; domPgLeft.style.cursor = 'pointer';
+  } else {
+    domLeftInner.innerHTML = '<div class="page-empty"></div>';
+    domLeftNum.textContent = ''; domPgLeft.style.pointerEvents = 'none';
+  }
+}
+
+function renderRightBackground(ri) {
+  if (CATS[ri]) {
+    domRightInner.innerHTML = cardHTML(CATS[ri], ri);
+    domRightNum.textContent = ROMANS[ri];
+    domPgRight.style.pointerEvents = 'auto'; domPgRight.style.cursor = 'pointer';
+  } else {
+    domRightInner.innerHTML = '<div class="page-empty"></div>';
+    domRightNum.textContent = ''; domPgRight.style.pointerEvents = 'none';
+  }
+}
+
+function updateNav(s) {
+  const li = s * 2; const ri = s * 2 + 1;
+  const rightLabel = CATS[ri] ? ri + 1 : li + 1;
+  domCounter.textContent = `${li+1} — ${rightLabel}`;
+  domBtnPrev.disabled = false; domBtnNext.disabled = false;
+}
+
+function renderSpread(s) {
+  renderLeftBackground(s * 2); 
+  renderRightBackground(s * 2 + 1); 
+  updateNav(s);
+}
+
+function openBook() {
+  if (isOpen) return;
+  isOpen = true;
+  domBookCover.style.transformOrigin = 'left center';
+  domBookCover.style.transition = 'transform 0.9s cubic-bezier(0.4,0,0.2,1), opacity 0.85s';
+  domBookCover.style.transform  = 'rotateY(-180deg)';
+  domBookCover.style.opacity    = '0';
+  setTimeout(() => {
+    domBookCover.style.display = 'none';
+    domOpenBook.classList.add('vis'); domNavRow.classList.add('vis');
+    spread = 0; renderSpread(0);
+  }, 620);
+}
+
+domBookCover.addEventListener('click', openBook);
+domBookCover.addEventListener('touchend', e => { e.preventDefault(); openBook(); }, { passive:false });
+
+function closeBook() {
+  if (!isOpen) return;
+  isOpen = false;
+  domOpenBook.classList.remove('vis'); domNavRow.classList.remove('vis');
+  domBookCover.style.display = 'flex'; domBookCover.style.transition = 'none';
+  domBookCover.style.transform  = 'rotateY(-180deg)'; domBookCover.style.opacity = '0';
+  document.getElementById('book-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => {
+    domBookCover.style.transition = 'transform 0.9s cubic-bezier(0.4,0,0.2,1), opacity 0.85s';
+    domBookCover.style.transform  = 'rotateY(0deg)'; domBookCover.style.opacity = '1';
+  }, 50);
+  spread = 0; setTimeout(() => renderSpread(0), 1000); 
+}
+
+function doFlip(dir) {
+  if (isFlipping || !isOpen) return;
+  if (dir === 'next' && spread >= TOTAL_SPREADS - 1) { closeBook(); return; }
+  if (dir === 'prev' && spread === 0) { closeBook(); return; }
+
+  isFlipping = true; domFlipLayer.style.display = 'block';
+  const oldS = spread; const newS = dir === 'next' ? spread + 1 : spread - 1; spread = newS; 
+
+  if (dir === 'next') {
+    const oldRi = oldS * 2 + 1; const newLi = newS * 2; const newRi = newS * 2 + 1;
+    domFlipFront.innerHTML = buildFaceHTML(oldRi, 'right'); domFlipBack.innerHTML  = buildFaceHTML(newLi, 'left');
+    renderRightBackground(newRi);
+    domFlipPage.style.transform = 'rotateY(0deg)'; domFlipPage.classList.remove('flip-next','flip-prev');
+    void domFlipPage.offsetWidth; domFlipPage.classList.add('flip-next');
+  } else {
+    const oldLi = oldS * 2; const newLi = newS * 2; const newRi = newS * 2 + 1;
+    domFlipBack.innerHTML  = buildFaceHTML(oldLi, 'left'); domFlipFront.innerHTML = buildFaceHTML(newRi, 'right');
+    renderLeftBackground(newLi);
+    domFlipPage.style.transform = 'rotateY(-180deg)'; domFlipPage.classList.remove('flip-next','flip-prev');
+    void domFlipPage.offsetWidth; domFlipPage.classList.add('flip-prev');
+  }
+  updateNav(newS);
+  domFlipPage.addEventListener('animationend', function h() {
+    domFlipPage.classList.remove('flip-next','flip-prev');
+    domFlipFront.innerHTML = ''; domFlipBack.innerHTML  = '';
+    domFlipLayer.style.display = 'none'; isFlipping = false;
+    if (dir === 'next') renderLeftBackground(newS * 2); else renderRightBackground(newS * 2 + 1);
+    domFlipPage.removeEventListener('animationend', h);
+  });
+}
+
+function enterCat(side) {
+  if (isFlipping) return;
+  const idx = spread * 2 + side; const cat = CATS[idx]; if (!cat) return;
+
+  if (cat.link) {
+    // Save state so back navigation skips preloader
+    sessionStorage.setItem('lh_returning', 'true');
+    sessionStorage.setItem('lh_scroll', window.scrollY);
+    sessionStorage.setItem('lh_spread', spread);
+    sessionStorage.setItem('lh_bookopen', 'true');
+    window.location.href = cat.link;
+    return;
+  }
+
+  document.getElementById('cv-ch').textContent = 'Chapter ' + String(idx+1).padStart(2,'0');
+  document.getElementById('cv-ic').textContent = cat.icon;
+  document.getElementById('cv-nm').textContent = cat.name;
+  document.getElementById('cv-rl').style.background = cat.color;
+  document.getElementById('cv-ds').textContent = cat.desc;
+  spawnParticles(cat.color); domCatView.classList.add('vis');
+}
+
+function closeCat() { domCatView.classList.remove('vis'); }
+
+function spawnParticles(color) {
+  const old = domCatView.querySelectorAll('.fpar'); old.forEach(p => p.remove());
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div'); p.className = 'fpar';
+    const size = 1.5 + Math.random() * 3, x = Math.random() * 100, y = Math.random() * 100;
+    const tx = (Math.random() - 0.5) * 180, ty = (Math.random() - 0.5) * 180;
+    const dur = 0.9 + Math.random() * 1.2, delay = Math.random() * 0.5;
+    p.style.cssText = `width:${size}px;height:${size}px;background:${color};opacity:0;left:${x}%;top:${y}%;animation:par ${dur}s ${delay}s ease-out forwards;--tx:${tx}px;--ty:${ty}px;`;
+    domCatView.appendChild(p);
+  }
+}
+
+const s = document.createElement('style');
+s.textContent = `@keyframes par{ 0%{opacity:0;transform:translate(0,0) scale(0);} 25%{opacity:0.9;} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0.4);} }`;
+document.head.appendChild(s);
+
+let txStart = 0;
+const pw = document.getElementById('pages-wrapper');
+pw.addEventListener('touchstart', e => { txStart = e.touches[0].clientX; }, { passive:true });
+pw.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - txStart;
+  if (Math.abs(dx) > 44) doFlip(dx < 0 ? 'next' : 'prev');
+}, { passive:true });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') doFlip('next');
+  if (e.key === 'ArrowLeft')  doFlip('prev');
+  if (e.key === 'Escape')     closeCat();
+});
+</script>
+
+<div class="global-like-container" id="globalLikeBtn">
+  <span class="heart-icon">♡</span>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-check-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAknA3Nob8QRoFTeu8wEbSGopbO8F72U3I",
+    authDomain: "loyal-heart.firebaseapp.com",
+    databaseURL: "https://loyal-heart-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "loyal-heart",
+    storageBucket: "loyal-heart.firebasestorage.app",
+    messagingSenderId: "885089385640",
+    appId: "1:885089385640:web:48613e1a960a52a96b569d"
+  };
+
+  // 1. Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // 2. Initialize App Check (reCAPTCHA v3)
+  const appCheck = firebase.appCheck();
+  appCheck.activate(
+    '6LcHBaosAAAAAHNzJ4TKMZSQsFH3VM9Z1xgENNU4', // reCAPTCHA v3 Site Key
+    true // isTokenAutoRefreshEnabled
+  );
+
+  // 3. Initialize Database
+  const db = firebase.database();
+
+  // Database References
+  const likesRef = db.ref('totalLikes');
+  const viewsRef = db.ref('totalViews');
+
+  // ==========================================
+  // SECRET VISITOR TRACKER
+  // ==========================================
+  let hasVisited = localStorage.getItem('loyalHeartVisited') === 'true';
+
+  if (!hasVisited) {
+    localStorage.setItem('loyalHeartVisited', 'true');
+    viewsRef.set(firebase.database.ServerValue.increment(1));
+  }
+
+  // ==========================================
+  // LIKE BUTTON LOGIC (NO COUNTER)
+  // ==========================================
+  const likeBtn = document.getElementById('globalLikeBtn');
+  const heartIcon = document.querySelector('.heart-icon');
+
+  let hasLiked = localStorage.getItem('loyalHeartLiked') === 'true';
+
+  if (hasLiked) {
+    heartIcon.innerText = '♥';
+  }
+
+  likeBtn.addEventListener('click', () => {
+    heartIcon.classList.remove('heart-pop');
+    void heartIcon.offsetWidth;
+    heartIcon.classList.add('heart-pop');
+
+    if (!hasLiked) {
+      // User is liking
+      heartIcon.innerText = '♥';
+      hasLiked = true;
+      localStorage.setItem('loyalHeartLiked', 'true');
+      
+      // Send the like to Firebase without needing read access
+      likesRef.set(firebase.database.ServerValue.increment(1)).catch(error => {
+        console.error("Firebase update failed: ", error);
+      });
+    } else {
+      // User is unliking
+      heartIcon.innerText = '♡';
+      hasLiked = false;
+      localStorage.removeItem('loyalHeartLiked');
+      
+      // Remove the like from Firebase
+      likesRef.set(firebase.database.ServerValue.increment(-1)).catch(error => {
+        console.error("Firebase update failed: ", error);
+      });
+    }
+  });
+</script>
+</body>
+</html>
