@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Loyal Heart — Music</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;400;700;900&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --void: #050810;
+            --light: #e8edf8;
+            --teal: #00d4b4;
+            --blue: #4488ff;
+            --accent: #00d4b4;
+            --glow: rgba(0, 212, 180, 0.15);
+        }
+
+        html {
+            overflow-y: scroll;
+        }
+
+        body {
+            width: 100%;
+            overflow-x: hidden;
+            background: var(--void);
+            color: var(--light);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 2px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--teal);
+            border-radius: 2px;
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--void);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transition: opacity 1.2s ease;
+        }
+
+        #loader.out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .ldr-wave {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 40px;
+            opacity: 0;
+            animation: fI 0.8s ease 0.3s forwards;
+        }
+
+        .ldr-bar-w {
+            width: 4px;
+            border-radius: 2px;
+            background: var(--teal);
+        }
+
+        .ldr-bar-w:nth-child(1) { animation: waveBar 0.8s ease-in-out 0.2s infinite; height: 12px; }
+        .ldr-bar-w:nth-child(2) { animation: waveBar 0.8s ease-in-out 0.35s infinite; height: 22px; }
+        .ldr-bar-w:nth-child(3) { animation: waveBar 0.8s ease-in-out 0.1s infinite; height: 36px; }
+        .ldr-bar-w:nth-child(4) { animation: waveBar 0.8s ease-in-out 0.45s infinite; height: 26px; }
+        .ldr-bar-w:nth-child(5) { animation: waveBar 0.8s ease-in-out 0.25s infinite; height: 16px; }
+
+        @keyframes waveBar {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
+        }
+
+        .ldr-txt {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 8px;
+            letter-spacing: 0.4em;
+            color: var(--teal);
+            opacity: 0;
+            animation: fI 0.8s ease 0.7s forwards;
+            font-weight: 200;
+        }
+
+        .ldr-line {
+            width: 70px;
+            height: 1px;
+            background: rgba(0, 212, 180, 0.15);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fI 0.5s ease 1s forwards;
+        }
+
+        .ldr-line::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, var(--teal), transparent);
+            transform: translateX(-100%);
+            animation: bS 1.8s ease 1.2s forwards;
+        }
+
+        @keyframes fI {
+            to { opacity: 1; }
+        }
+
+        @keyframes bS {
+            to { transform: translateX(100%); }
+        }
+
+        #page3 {
+            height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 0 24px;
+        }
+
+        #page3::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse 130% 55% at 50% 5%, rgba(0, 212, 180, 0.07) 0%, transparent 60%),
+                        radial-gradient(ellipse 80% 60% at 50% 95%, rgba(68, 136, 255, 0.05) 0%, transparent 55%);
+        }
+
+        /* Sound wave lines */
+        .wave-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0;
+            animation: fI 2s ease 1s forwards;
+        }
+
+        .wave-bg svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .bk {
+            position: absolute;
+            z-index: 2;
+            opacity: 0;
+            animation: fI 1s ease 0.5s forwards;
+        }
+
+        .bk-tl { top: 18px; left: 18px; }
+        .bk-tr { top: 18px; right: 18px; transform: rotate(90deg); }
+        .bk-bl { bottom: 108px; left: 18px; transform: rotate(-90deg); }
+        .bk-br { bottom: 108px; right: 18px; transform: rotate(180deg); }
+
+        .top-brand {
+            position: relative;
+            z-index: 3;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 7.5px;
+            letter-spacing: 0.4em;
+            color: var(--teal);
+            opacity: 0;
+            margin-top: 22px;
+            animation: fI 1s ease 0.6s forwards;
+            font-weight: 200;
+        }
+
+        .center-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            z-index: 3;
+            padding: 12px 0;
+            will-change: transform, opacity;
+        }
+
+        .lh-mask {
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .loyal-heart {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(1.7rem, 8vw, 2.7rem);
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--light);
+            line-height: 1;
+            display: block;
+            transform: translateY(105%);
+            animation: slUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+        }
+
+        .teal-rule {
+            width: 55px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--teal), transparent);
+            margin: 14px auto 18px;
+            opacity: 0;
+            animation: fI 1s ease 1.4s forwards;
+        }
+
+        .tagline {
+            line-height: 1;
+            text-align: center;
+        }
+
+        .tl {
+            display: block;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        .tl-1 {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: clamp(1.1rem, 4.5vw, 1.45rem);
+            color: rgba(232, 237, 248, 0.6);
+            margin-bottom: 5px;
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
+        }
+
+        .tl-2 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(0.55rem, 2.4vw, 0.75rem);
+            letter-spacing: 0.35em;
+            color: var(--teal);
+            margin-bottom: 5px;
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.7s forwards;
+            font-weight: 200;
+        }
+
+        .tl-3 {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: clamp(1.1rem, 4.5vw, 1.45rem);
+            color: rgba(232, 237, 248, 0.6);
+            margin-bottom: 5px;
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.9s forwards;
+        }
+
+        .tl-4 {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+            color: var(--light);
+            font-weight: 400;
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.1s forwards;
+        }
+
+        .content-tags {
+            margin-top: 26px;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 6.5px;
+            letter-spacing: 0.25em;
+            color: rgba(232, 237, 248, 0.18);
+            text-align: center;
+            line-height: 2.4;
+            font-weight: 200;
+            opacity: 0;
+            animation: fI 1.5s ease 2.9s forwards;
+        }
+
+        .bridge {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 26px;
+            position: relative;
+            z-index: 3;
+            will-change: transform, opacity;
+        }
+
+        .bridge-line {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: clamp(0.8rem, 3.2vw, 0.96rem);
+            color: rgba(232, 237, 248, 0.28);
+            text-align: center;
+            line-height: 2;
+            opacity: 0;
+            animation: fI 1s ease 3.1s forwards;
+        }
+
+        .find-wrap {
+            position: relative;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .find-word {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(2.1rem, 8.5vw, 3.4rem);
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--light);
+            opacity: 0;
+            animation: fI 1.2s ease 3.4s forwards;
+            transform-origin: center;
+            padding-left: 0.2em;
+            margin: 0;
+            position: relative;
+        }
+
+        .find-word::after {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 2px;
+            margin: 6px auto 0;
+            background: linear-gradient(90deg, transparent, var(--teal), transparent);
+        }
+
+        .find-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 55%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 180, 0.25), transparent);
+            animation: fS 4s ease 5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes fS {
+            0% { left: -55%; }
+            40%, 100% { left: 120%; }
+        }
+
+        .scroll-cue {
+            display: flex;
+            gap: 5px;
+            align-items: flex-end;
+            height: 20px;
+            margin-top: 14px;
+            opacity: 0;
+            animation: fI 1s ease 4s forwards;
+        }
+
+        .eq-bar {
+            width: 3px;
+            border-radius: 2px;
+            background: var(--teal);
+            animation: eqPulse 1.2s ease-in-out infinite;
+        }
+
+        .eq-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .eq-bar:nth-child(2) { height: 14px; animation-delay: 0.15s; }
+        .eq-bar:nth-child(3) { height: 18px; animation-delay: 0.05s; }
+        .eq-bar:nth-child(4) { height: 12px; animation-delay: 0.2s; }
+        .eq-bar:nth-child(5) { height: 8px; animation-delay: 0.1s; }
+
+        @keyframes eqPulse {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
+        }
+
+        #page4 {
+            height: 100svh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--void);
+        }
+
+        #music-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1;
+        }
+
+        .fade-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            z-index: 3;
+            pointer-events: none;
+            background: linear-gradient(180deg, var(--void) 0%, transparent 100%);
+        }
+
+        .fade-bot {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 160px;
+            z-index: 3;
+            pointer-events: none;
+            background: linear-gradient(0deg, var(--void) 0%, transparent 100%);
+        }
+
+        .fade-left {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            z-index: 3;
+            pointer-events: none;
+            background: linear-gradient(90deg, var(--void), transparent);
+        }
+
+        .fade-right {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            z-index: 3;
+            pointer-events: none;
+            background: linear-gradient(270deg, var(--void), transparent);
+        }
+
+        .p4-overlay {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 20px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        .p4-label {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(16px,4vw,22px);
+            letter-spacing: 0.5em;
+            color: var(--teal);
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            font-weight: 800;
+        }
+
+        .p4-label.show {
+            opacity: 0.8;
+        }
+
+        .p4-spacer {
+            height: 58vw;
+            max-height: 320px;
+            min-height: 220px;
+        }
+
+        .p4-sub {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: clamp(0.88rem, 3.5vw, 1.1rem);
+            color: rgba(232, 237, 248, 0.5);
+            line-height: 2.1;
+            max-width: 300px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
+            pointer-events: auto;
+        }
+
+        .p4-sub.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .p4-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 26px;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 7.5px;
+            letter-spacing: 0.38em;
+            color: var(--teal);
+            border: 1px solid rgba(0, 212, 180, 0.4);
+            padding: 13px 28px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 1s ease 0.9s, transform 1s ease 0.9s;
+            cursor: pointer;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+            font-weight: 200;
+        }
+
+        .p4-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--teal);
+            transform: translateX(-101%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .p4-btn:active::before {
+            transform: translateX(0);
+        }
+
+        .p4-btn:active span {
+            color: var(--void);
+        }
+
+        .p4-btn span, .arr {
+            position: relative;
+            z-index: 1;
+            transition: color 0.5s;
+        }
+
+        .arr {
+            font-size: 14px;
+        }
+
+        .p4-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes fUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slUp { to { transform: translateY(0); } }
+        
+                /* ══════════ PAGE 5 (NOTICE & CONTACT) ══════════ */
+        #page5 {
+            min-height: 100svh;
+            /* Auto-adapts to each chapter's specific background and text colors */
+            background: var(--void, var(--deep, var(--ink, #0a0a08)));
+            color: var(--white, var(--light, var(--film, var(--blush, var(--cream, var(--paper, #fff))))));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .notice-container {
+            max-width: 650px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 50px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .notice-container h2 {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .notice-container p {
+            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+            line-height: 1.8;
+            opacity: 0.75;
+            margin-bottom: 45px;
+        }
+
+        .notice-container .contact-heading {
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 15px;
+        }
+
+        .notice-container .like-text {
+            font-size: clamp(1.3rem, 5vw, 2rem);
+            font-weight: 800;
+            opacity: 1;
+            margin-top: 10px;
+            letter-spacing: 0.05em;
+            /* Inherits the chapter's specific accent color */
+            color: var(--accent, var(--amber, var(--violet, var(--gold, var(--magenta, inherit)))));
+        }
+
+    </style>
+</head>
+<body>
+    <div id="loader">
+        <div class="ldr-wave">
+            <div class="ldr-bar-w"></div>
+            <div class="ldr-bar-w"></div>
+            <div class="ldr-bar-w"></div>
+            <div class="ldr-bar-w"></div>
+            <div class="ldr-bar-w"></div>
+        </div>
+        <div class="ldr-txt">Loyal Heart</div>
+        <div class="ldr-line"></div>
+    </div>
+
+    <section id="page3">
+        <div class="bk bk-tl">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(0,212,180,0.4)" stroke-width="0.8"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(0,212,180,0.6)"/>
+            </svg>
+        </div>
+        <div class="bk bk-tr">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(0,212,180,0.4)" stroke-width="0.8"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(0,212,180,0.6)"/>
+            </svg>
+        </div>
+        <div class="bk bk-bl">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(0,212,180,0.4)" stroke-width="0.8"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(0,212,180,0.6)"/>
+            </svg>
+        </div>
+        <div class="bk bk-br">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(0,212,180,0.4)" stroke-width="0.8"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(0,212,180,0.6)"/>
+            </svg>
+        </div>
+        
+        <div class="top-brand">Loyal Heart &nbsp;·&nbsp; Music</div>
+        
+        <div class="center-block" id="centerBlock">
+            <div class="lh-mask">
+                <span class="loyal-heart">LOYAL HEART</span>
+            </div>
+            <div class="teal-rule"></div>
+            <div class="tagline">
+                <span class="tl tl-1">Where</span>
+                <span class="tl tl-2">Emotions</span>
+                <span class="tl tl-3">meet</span>
+                <span class="tl tl-4">Creativity</span>
+            </div>
+            <div class="content-tags">
+                Stories · Quotes · Reels<br>Psychology · Relationship<br>Comedy · Music · Polls<br>Knowledge · Webseries
+            </div>
+        </div>
+
+        <div class="bridge" id="bridge">
+            <p class="bridge-line">Feel the frequency of every emotion<br>that lives between the notes…</p>
+            <div class="find-wrap">
+                <span class="find-word" id="findWord">SWIPE</span>
+                <div class="find-shine"></div>
+            </div>
+            <div class="scroll-cue">
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="page4">
+        <canvas id="music-canvas"></canvas>
+        <div class="fade-top"></div>
+        <div class="fade-bot"></div>
+        <div class="fade-left"></div>
+        <div class="fade-right"></div>
+        
+        <div class="p4-overlay">
+            <div class="p4-label" id="p4label">CHAPTER 07</div>
+            <div class="p4-spacer"></div>
+            <p class="p4-sub" id="p4sub">
+                Music is the language<br>your heart already knows.<br>
+                <em>Press play on your feelings.</em>
+            </p>
+            <div class="p4-btn" id="p4btn">
+                <span>Play Music</span>
+                <span class="arr">♪</span>
+            </div>
+        </div>
+    </section>
+    
+        <section id="page5">
+        <div class="notice-container">
+            <h2>Notice</h2>
+            <p>
+                Our website is currently under development, and we are working hard to bring you a great experience.<br><br>
+                New content will be available soon.<br>
+                Please check back for updates.<br><br>
+                Thank you for your patience and support.
+            </p>
+
+            <h2 class="contact-heading">Contact Us</h2>
+            <p>
+                Email: contact.loyalheart@gmail.com<br><br>
+                If you have any questions, suggestions, or inquiries, feel free to reach out to us.<br>
+                Thank you for connecting with Loyal Heart.
+            </p>
+
+            <div class="like-text">
+                Loved it? Let us know with a like! ❤️
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const centerBlock = document.getElementById('centerBlock');
+        const bridge = document.getElementById('bridge');
+        const findWord = document.getElementById('findWord');
+        const page4el = document.getElementById('page4');
+
+        let lastSY = 0, ticking = false, p4Done = false, storyProg = 0;
+
+        function doP() {
+            ticking = false;
+            const sY = lastSY;
+            const vh = window.innerHeight;
+            const p4top = page4el.getBoundingClientRect().top;
+            
+            storyProg = Math.max(0, Math.min(1, (vh - p4top) / vh));
+            
+            const cp = Math.min(1, sY / (vh * 0.55));
+            centerBlock.style.transform = `translateY(${-cp * 65}px)`;
+            centerBlock.style.opacity = `${Math.max(0, 1 - cp * 1.5)}`;
+            
+            const bp = Math.min(1, sY / (vh * 0.8));
+            bridge.style.transform = `translateY(${-bp * 30}px)`;
+            bridge.style.opacity = `${Math.max(0, 1 - Math.max(0, bp - 0.52) * 4.5)}`;
+            
+            const fp = Math.min(1, sY / (vh * 0.68));
+            findWord.style.transform = `scale(${1 + fp * 2.8})`;
+            findWord.style.opacity = `${Math.max(0, 1 - fp * 1.1)}`;
+            findWord.style.textShadow = `0 0 ${fp * (1 - fp) * 24}px rgba(0, 212, 180, ${fp * 0.85})`;
+            
+            if (storyProg > 0.22 && !p4Done) {
+                p4Done = true;
+                document.getElementById('p4label').classList.add('show');
+                setTimeout(() => document.getElementById('p4sub').classList.add('show'), 500);
+                setTimeout(() => document.getElementById('p4btn').classList.add('show'), 950);
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            lastSY = window.scrollY;
+            if (!ticking) {
+                requestAnimationFrame(doP);
+                ticking = true;
+            }
+        }, { passive: true });
+
+        const canvas = document.getElementById('music-canvas');
+        const W = () => window.innerWidth;
+        const H = () => window.innerHeight;
+
+        const renderer = new THREE.WebGLRenderer({
+            canvas,
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance'
+        });
+        
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.5));
+        renderer.setSize(W(), H());
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1;
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050810, 0.038);
+
+        const camera = new THREE.PerspectiveCamera(50, W() / H(), 0.1, 100);
+        camera.position.set(0, 0.3, 8);
+        
+        scene.add(new THREE.AmbientLight(0xc0f8f0, 0.35));
+
+        const kL = new THREE.SpotLight(0x80ffe8, 5.5, 26, Math.PI / 3.8, 0.3, 1.1);
+        kL.position.set(0, 6, 5);
+        kL.castShadow = true;
+        kL.shadow.mapSize.width = kL.shadow.mapSize.height = 2048;
+        kL.shadow.bias = -0.001;
+        scene.add(kL);
+        scene.add(kL.target);
+
+        const fL = new THREE.PointLight(0x004488, 3.5, 20);
+        fL.position.set(-5, 2, 4);
+        scene.add(fL);
+
+        const rL = new THREE.DirectionalLight(0x60f8e0, 3.0);
+        rL.position.set(4, 3, -3);
+        scene.add(rL);
+
+        const bL = new THREE.PointLight(0x00d4b4, 2.2, 12);
+        bL.position.set(0, -1.5, 5);
+        scene.add(bL);
+
+        const tF = new THREE.DirectionalLight(0xc0fff8, 1.6);
+        tF.position.set(0, 8, 4);
+        scene.add(tF);
+
+        const tFront = new THREE.MeshStandardMaterial({ color: 0x00c8a8, metalness: 0.94, roughness: 0.07, emissive: 0x000000 });
+        const tSide = new THREE.MeshStandardMaterial({ color: 0x003830, metalness: 0.88, roughness: 0.2, emissive: 0x000000 });
+
+        const EXT = { depth: 0.65, bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.055, bevelSegments: 10 };
+
+        function bM(s) {
+            const g = new THREE.ExtrudeGeometry(s, EXT);
+            const m = new THREE.Mesh(g, [tFront.clone(), tSide.clone()]);
+            m.castShadow = true;
+            m.receiveShadow = true;
+            return m;
+        }
+
+        function makeM() {
+            const g = new THREE.Group();
+            
+            const lS = new THREE.Shape();
+            lS.moveTo(0, 0); lS.lineTo(0.3, 0); lS.lineTo(0.3, 1.65); lS.lineTo(0, 1.65); lS.closePath();
+            
+            const rS = new THREE.Shape();
+            rS.moveTo(1.1, 0); rS.lineTo(1.4, 0); rS.lineTo(1.4, 1.65); rS.lineTo(1.1, 1.65); rS.closePath();
+            
+            const lD = new THREE.Shape();
+            lD.moveTo(0.3, 1.65); lD.lineTo(0.58, 1.65); lD.lineTo(0.85, 0.9); lD.lineTo(0.57, 0.9); lD.closePath();
+            
+            const rD = new THREE.Shape();
+            rD.moveTo(1.1, 1.65); rD.lineTo(0.82, 1.65); rD.lineTo(0.55, 0.9); rD.lineTo(0.83, 0.9); rD.closePath();
+            
+            [lS, rS, lD, rD].forEach(s => g.add(bM(s)));
+            return g;
+        }
+
+        function makeU() {
+            const g = new THREE.Group();
+            
+            const lS = new THREE.Shape();
+            lS.moveTo(0, 0.6); lS.lineTo(0, 1.65); lS.lineTo(0.32, 1.65); lS.lineTo(0.32, 0.6); lS.closePath();
+            
+            const rS = new THREE.Shape();
+            rS.moveTo(1.08, 0.6); rS.lineTo(1.08, 1.65); rS.lineTo(1.4, 1.65); rS.lineTo(1.4, 0.6); rS.closePath();
+            
+            const bowl = new THREE.Shape();
+            bowl.moveTo(0, 0.62);
+            bowl.bezierCurveTo(0, 0.62, 0, -0.02, 0.7, -0.02);
+            bowl.bezierCurveTo(1.4, -0.02, 1.4, 0.62, 1.4, 0.62);
+            bowl.lineTo(1.08, 0.62);
+            bowl.bezierCurveTo(1.08, 0.62, 1.08, 0.26, 0.7, 0.26);
+            bowl.bezierCurveTo(0.32, 0.26, 0.32, 0.62, 0.32, 0.62);
+            bowl.closePath();
+            
+            [lS, rS, bowl].forEach(s => g.add(bM(s)));
+            return g;
+        }
+
+        function makeS() {
+            const g = new THREE.Group();
+            const s = new THREE.Shape();
+            s.moveTo(1.38, 1.38); s.lineTo(1.38, 1.65); s.lineTo(0, 1.65); s.lineTo(0, 0.75); s.lineTo(1.06, 0.75); s.lineTo(1.06, 0.27); s.lineTo(0, 0.27); s.lineTo(0, 0); s.lineTo(1.38, 0); s.lineTo(1.38, 0.90); s.lineTo(0.32, 0.90); s.lineTo(0.32, 1.38); s.lineTo(1.38, 1.38); s.closePath();
+            g.add(bM(s));
+            return g;
+        }
+
+        function makeI() {
+            const g = new THREE.Group();
+            
+            const sp = new THREE.Shape();
+            sp.moveTo(0.5, 0); sp.lineTo(0.82, 0); sp.lineTo(0.82, 1.65); sp.lineTo(0.5, 1.65); sp.closePath();
+            
+            const tb = new THREE.Shape();
+            tb.moveTo(0, 1.38); tb.lineTo(1.35, 1.38); tb.lineTo(1.35, 1.65); tb.lineTo(0, 1.65); tb.closePath();
+            
+            const bb = new THREE.Shape();
+            bb.moveTo(0, 0); bb.lineTo(1.35, 0); bb.lineTo(1.35, 0.27); bb.lineTo(0, 0.27); bb.closePath();
+            
+            [sp, tb, bb].forEach(s => g.add(bM(s)));
+            return g;
+        }
+
+        function makeC() {
+            const g = new THREE.Group();
+            const s = new THREE.Shape();
+            s.moveTo(1.38, 0.27); s.lineTo(0.32, 0.27); s.lineTo(0.32, 1.38); s.lineTo(1.38, 1.38);
+            s.lineTo(1.38, 1.65); s.lineTo(0, 1.65); s.lineTo(0, 0); s.lineTo(1.38, 0); s.closePath();
+            g.add(bM(s));
+            return g;
+        }
+
+        const LW = 1.4, G = 0.22, blds = [makeM, makeU, makeS, makeI, makeC];
+        const tW = blds.length * LW + (blds.length - 1) * G;
+        const lg = new THREE.Group();
+
+        blds.forEach((fn, i) => {
+            const l = fn();
+            l.position.x = -tW / 2 + i * (LW + G);
+            l.position.y = -0.825;
+            lg.add(l);
+        });
+        
+        scene.add(lg);
+
+        const floor = new THREE.Mesh(
+            new THREE.PlaneGeometry(60, 20),
+            new THREE.MeshStandardMaterial({
+                color: 0x050810,
+                metalness: 0.98,
+                roughness: 0.04,
+                transparent: true,
+                opacity: 0.5
+            })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -1.45;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        const rg = lg.clone();
+        scene.add(rg);
+
+        const pC = 10000, pG = new THREE.BufferGeometry(), pP = new Float32Array(pC * 3);
+        for (let i = 0; i < pC; i++) {
+            pP[i * 3] = (Math.random() - 0.5) * 24;
+            pP[i * 3 + 1] = (Math.random() - 0.5) * 16;
+            pP[i * 3 + 2] = (Math.random() - 0.5) * 12 - 2;
+        }
+        pG.setAttribute('position', new THREE.BufferAttribute(pP, 3));
+
+        const pts = new THREE.Points(
+            pG,
+            new THREE.PointsMaterial({
+                color: 0x00d4b4,
+                size: 0.033,
+                transparent: true,
+                opacity: 0.28,
+                sizeAttenuation: true
+            })
+        );
+        scene.add(pts);
+
+        let bS = 1;
+
+        function fit() {
+            const fov = camera.fov * Math.PI / 180;
+            const d = camera.position.z;
+            const vW = 2 * Math.tan(fov / 2) * d * camera.aspect;
+            bS = (vW * 0.88) / tW;
+            lg.scale.setScalar(bS * 0.35);
+            upR();
+        }
+
+        function upR() {
+            const s = lg.scale.x;
+            rg.scale.set(s, -s, s);
+            const b = lg.position.y - 0.825 * s;
+            rg.position.y = -1.45 - (b - (-1.45));
+            rg.position.x = lg.position.x;
+            rg.rotation.x = -lg.rotation.x;
+            rg.rotation.y = lg.rotation.y;
+            rg.rotation.z = -lg.rotation.z;
+        }
+
+        let time = 0, gX = 0, gY = 0, cTX = 0, cTY = 0.3;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.006;
+            
+            const t = bS * (0.35 + storyProg * 0.65);
+            const c = lg.scale.x;
+            
+            lg.scale.setScalar(c + (t - c) * 0.08);
+            lg.position.y = Math.sin(time * 0.55) * 0.065;
+            lg.rotation.y = Math.sin(time * 0.38) * 0.09 + gX * 0.14;
+            lg.rotation.x = Math.cos(time * 0.28) * 0.025 + gY * 0.035 + 0.035;
+            
+            upR();
+
+            const glowSpeed = 3.5;
+            const glowSpread = 0.8;
+            lg.children.forEach((letter, i) => {
+                const wave = (Math.sin(time * glowSpeed - i * glowSpread) + 1) / 2;
+                const intensity = Math.pow(wave, 6) * 0.65; 
+                letter.traverse(mesh => {
+                    if (mesh.isMesh) {
+                        mesh.material[0].emissive.setHex(0x00d4b4);
+                        mesh.material[0].emissiveIntensity = intensity;
+                        mesh.material[1].emissive.setHex(0x00d4b4);
+                        mesh.material[1].emissiveIntensity = intensity * 0.25; 
+                    }
+                });
+            });
+            
+            kL.position.x = Math.cos(time * 0.42) * 3.5;
+            kL.position.y = Math.sin(time * 0.28) * 1.8 + 5;
+            fL.position.x = Math.sin(time * 0.35) * 4 - 2;
+            
+            cTX += (gX * 0.28 - cTX) * 0.05;
+            cTY += (0.3 + gY * 0.18 - cTY) * 0.05;
+            camera.position.x = cTX;
+            camera.position.y = cTY;
+            camera.lookAt(0, 0, 0);
+            
+            pts.rotation.y += 0.00025;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = W() / H();
+            camera.updateProjectionMatrix();
+            renderer.setSize(W(), H());
+            fit();
+        }, { passive: true });
+
+        if (typeof DeviceOrientationEvent !== 'undefined') {
+            window.addEventListener('deviceorientation', e => {
+                gX = Math.max(-1, Math.min(1, (e.gamma || 0) / 40));
+                gY = Math.max(-1, Math.min(1, ((e.beta || 0) - 30) / 50));
+            }, { passive: true });
+        }
+
+        window.addEventListener('load', () => {
+            fit();
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('out');
+                animate();
+            }, 2600);
+        });
+        
+                // Scroll to Page 5 when the button on Page 4 is clicked
+        document.getElementById('p4btn').addEventListener('click', () => {
+            document.getElementById('page5').scrollIntoView({ behavior: 'smooth' });
+        });
+
+    </script>
+</body>
+</html>

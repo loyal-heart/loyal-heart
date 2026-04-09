@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Loyal Heart</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;0,700&family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #f5f0e8;
+  --deep: #0d0a05;
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --rose: #8b3a3a;
+}
+
+html { overflow-y: scroll; }
+
+body {
+  width: 100%;
+  overflow-x: hidden;
+  background: var(--deep);
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+/* ══════════ LOADER ══════════ */
+#loader {
+  position: fixed; inset: 0;
+  background: var(--deep);
+  z-index: 9999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px;
+  transition: opacity 1.2s ease;
+}
+#loader.out { opacity: 0; pointer-events: none; }
+.loader-logo {
+  font-family: 'Cinzel', serif; font-size: 11px;
+  letter-spacing: 0.5em; color: var(--gold);
+  opacity: 0; animation: ldrFade 0.8s ease 0.3s forwards;
+}
+.loader-icon {
+  font-size: 32px; opacity: 0;
+  animation: ldrBeat 1.5s ease 0.6s infinite;
+  filter: drop-shadow(0 0 8px rgba(201,168,76,0.5));
+}
+.loader-bar {
+  width: 80px; height: 1px;
+  background: rgba(201,168,76,0.15);
+  position: relative; overflow: hidden;
+  opacity: 0; animation: ldrFade 0.5s ease 0.8s forwards;
+}
+.loader-bar::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: translateX(-100%);
+  animation: ldrBar 2s ease 1s forwards;
+}
+@keyframes ldrFade { to { opacity: 1; } }
+@keyframes ldrBeat {
+  0%,100% { opacity:0.6; transform:scale(1); }
+  50% { opacity:1; transform:scale(1.15); }
+}
+@keyframes ldrBar { to { transform: translateX(100%); } }
+
+/* ══════════ PAGE 3 ══════════ */
+#page3 {
+  height: 100svh;
+  display: flex; flex-direction: column;
+  align-items: center;
+  position: relative; overflow: hidden;
+  padding: 0 24px;
+}
+
+.p3-glow {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 130% 55% at 50% 5%, rgba(201,168,76,0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 90% 70% at 50% 95%, rgba(139,58,58,0.06) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+  animation: glowPulse 6s ease-in-out infinite alternate;
+}
+@keyframes glowPulse { from { opacity:0.6; } to { opacity:1; } }
+
+.p3-grain {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5; pointer-events: none; z-index: 0;
+}
+
+.bracket {
+  position: absolute; width: 32px; height: 32px; z-index: 2;
+  opacity: 0; animation: fadeIn 1s ease 0.4s forwards;
+}
+.bracket svg { width: 100%; height: 100%; }
+.br-tl { top: 16px; left: 16px; }
+.br-tr { top: 16px; right: 16px; transform: rotate(90deg); }
+.br-bl { bottom: 120px; left: 16px; transform: rotate(-90deg); }
+.br-br { bottom: 120px; right: 16px; transform: rotate(180deg); }
+
+.top-brand {
+  position: relative; z-index: 2;
+  font-family: 'Cinzel', serif; font-size: 8.5px;
+  letter-spacing: 0.42em; color: var(--gold);
+  opacity: 0; margin-top: 24px;
+  animation: fadeIn 1s ease 0.5s forwards;
+}
+
+.center-block {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  position: relative; z-index: 2;
+  padding: 16px 0;
+  will-change: transform, opacity;
+}
+
+.lh-wrap { overflow: hidden; margin-bottom: 3px; }
+.loyal-heart {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 9.5vw, 3rem);
+  font-weight: 900; letter-spacing: 0.18em;
+  color: var(--cream); line-height: 1; display: block;
+  transform: translateY(100%);
+  animation: slideUp 1s cubic-bezier(0.16,1,0.3,1) 0.8s forwards;
+}
+
+.gold-rule {
+  width: 70px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 14px auto 20px; opacity: 0;
+  animation: fadeIn 1s ease 1.4s forwards;
+}
+
+.tagline { line-height: 1; }
+.tl { display: block; opacity: 0; transform: translateY(18px); }
+.tl-1 {
+  font-family: 'IM Fell English', serif; font-style: italic;
+  font-size: clamp(1.15rem, 4.8vw, 1.55rem);
+  color: rgba(245,240,232,0.65); margin-bottom: 6px;
+  animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 1.5s forwards;
+}
+.tl-2 {
+  font-family: 'Cinzel', serif; font-size: clamp(0.65rem, 2.8vw, 0.85rem);
+  letter-spacing: 0.32em; color: var(--gold-light); margin-bottom: 6px;
+  animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 1.7s forwards;
+}
+.tl-3 {
+  font-family: 'IM Fell English', serif; font-style: italic;
+  font-size: clamp(1.15rem, 4.8vw, 1.55rem);
+  color: rgba(245,240,232,0.65); margin-bottom: 6px;
+  animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 1.9s forwards;
+}
+.tl-4 {
+  font-family: 'IM Fell English', serif;
+  font-size: clamp(1.35rem, 5.5vw, 1.9rem); color: var(--cream);
+  animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 2.1s forwards;
+}
+
+.content-tags {
+  margin-top: 28px; font-family: 'Cinzel', serif;
+  font-size: 7.5px; letter-spacing: 0.26em;
+  color: rgba(245,240,232,0.22); text-align: center;
+  line-height: 2.3; opacity: 0;
+  animation: fadeIn 1.5s ease 2.8s forwards;
+}
+
+/* ── BRIDGE ── */
+.bridge {
+  width: 100%; display: flex; flex-direction: column;
+  align-items: center; padding-bottom: 28px;
+  position: relative; z-index: 2;
+  will-change: transform, opacity;
+}
+
+.bridge-line {
+  font-family: 'IM Fell English', serif; font-style: italic;
+  font-size: clamp(0.82rem, 3.3vw, 1rem);
+  color: rgba(245,240,232,0.32);
+  text-align: center; line-height: 1.95;
+  opacity: 0; animation: fadeIn 1s ease 3.1s forwards;
+}
+
+.bridge-find-wrap {
+  position: relative;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.bridge-find {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.5rem, 10vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.38em;
+  color: var(--cream);
+  display: inline-block;
+  opacity: 0;
+  animation: fadeIn 1.2s ease 3.4s forwards;
+  position: relative;
+  transform-origin: center center;
+  text-align: center;
+  text-indent: 0.38em;
+  padding: 0;
+  margin: 0 auto;
+}
+.bridge-find::after {
+  content: '';
+  display: block; width: 55%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 8px auto 0;
+}
+
+.bridge-find-shine {
+  position: absolute; top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.25), transparent);
+  animation: findShine 3.5s ease 4.5s infinite;
+  pointer-events: none;
+}
+@keyframes findShine {
+  0%   { left: -60%; }
+  40%, 100% { left: 120%; }
+}
+
+.scroll-cue {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 5px; margin-top: 16px;
+  opacity: 0; animation: fadeIn 1s ease 4s forwards;
+}
+.s-dot {
+  width: 4px; height: 4px; border-radius: 50%; background: var(--gold);
+}
+.s-dot:nth-child(1) { animation: dotDrop 1.6s ease-in-out infinite 0s; }
+.s-dot:nth-child(2) { animation: dotDrop 1.6s ease-in-out infinite 0.15s; opacity: 0.55; }
+.s-dot:nth-child(3) { animation: dotDrop 1.6s ease-in-out infinite 0.3s; opacity: 0.25; }
+@keyframes dotDrop {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(6px); }
+}
+
+/* ══════════ PAGE 4 ══════════ */
+#page4 {
+  height: 100svh;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+
+#story-canvas {
+  position: absolute; inset: 0;
+  width: 100% !important; height: 100% !important;
+  z-index: 1;
+}
+
+.fade-top, .fade-bot {
+  position: absolute; left: 0; right: 0;
+  z-index: 3; pointer-events: none;
+}
+.fade-top { top: 0; height: 180px; background: linear-gradient(180deg, var(--deep) 0%, transparent 100%); }
+.fade-bot { bottom: 0; height: 160px; background: linear-gradient(0deg, var(--deep) 0%, transparent 100%); }
+.fade-left, .fade-right {
+  position: absolute; top: 0; bottom: 0;
+  width: 50px; z-index: 3; pointer-events: none;
+}
+.fade-left  { left: 0;  background: linear-gradient(90deg,  var(--deep), transparent); }
+.fade-right { right: 0; background: linear-gradient(270deg, var(--deep), transparent); }
+
+.p4-overlay {
+  position: relative; z-index: 5;
+  text-align: center; padding: 20px 28px;
+  display: flex; flex-direction: column;
+  align-items: center; pointer-events: none; width: 100%;
+}
+
+.p4-label {
+  font-family: 'Cinzel', serif; 
+  font-size: clamp(12px, 3vw, 16px);
+  font-weight: 600;
+  letter-spacing: 0.65em;
+  color: var(--gold);
+  opacity: 0; 
+  transition: opacity 1.2s ease;
+  text-transform: uppercase;
+  text-indent: 0.65em; /* Match letter spacing */
+}
+.p4-label.show { opacity: 0.85; }
+
+.p4-spacer {
+  height: 58vw;
+  max-height: 320px;
+  min-height: 220px;
+}
+
+.p4-sub {
+  font-family: 'IM Fell English', serif; font-style: italic;
+  font-size: clamp(0.9rem, 3.6vw, 1.15rem);
+  color: rgba(245,240,232,0.5);
+  line-height: 2.1; max-width: 300px;
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
+  pointer-events: auto;
+}
+.p4-sub.show { opacity: 1; transform: translateY(0); }
+
+.p4-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 26px;
+  font-family: 'Cinzel', serif; font-size: 8.5px;
+  letter-spacing: 0.4em; color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.4);
+  padding: 13px 30px;
+  position: relative; overflow: hidden;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 1s ease 0.9s, transform 1s ease 0.9s;
+  cursor: pointer; pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  font-weight: 300;
+}
+.p4-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--gold); transform: translateX(-101%);
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.p4-btn:active::before { transform: translateX(0); }
+.p4-btn:active span, .p4-btn:active .btn-arrow { color: var(--deep); }
+.p4-btn span, .p4-btn .btn-arrow { position: relative; z-index: 1; transition: color 0.5s; }
+.btn-arrow { font-size: 14px; }
+.p4-btn.show { opacity: 1; transform: translateY(0); }
+
+@keyframes fadeUp  { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn  { to { opacity: 1; } }
+@keyframes slideUp { to { transform: translateY(0); } }
+
+        /* ══════════ PAGE 5 (NOTICE & CONTACT) ══════════ */
+        #page5 {
+            min-height: 100svh;
+            /* Auto-adapts to each chapter's specific background and text colors */
+            background: var(--void, var(--deep, var(--ink, #0a0a08)));
+            color: var(--white, var(--light, var(--film, var(--blush, var(--cream, var(--paper, #fff))))));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .notice-container {
+            max-width: 650px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 50px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .notice-container h2 {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .notice-container p {
+            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+            line-height: 1.8;
+            opacity: 0.75;
+            margin-bottom: 45px;
+        }
+
+        .notice-container .contact-heading {
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 15px;
+        }
+
+        .notice-container .like-text {
+            font-size: clamp(1.3rem, 5vw, 2rem);
+            font-weight: 800;
+            opacity: 1;
+            margin-top: 10px;
+            letter-spacing: 0.05em;
+            /* Inherits the chapter's specific accent color */
+            color: var(--accent, var(--amber, var(--violet, var(--gold, var(--magenta, inherit)))));
+        }
+
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-logo">Loyal Heart</div>
+  <div class="loader-icon">📖</div>
+  <div class="loader-bar"></div>
+</div>
+
+<section id="page3">
+  <div class="p3-glow"></div>
+  <div class="p3-grain"></div>
+
+  <div class="bracket br-tl"><svg viewBox="0 0 32 32" fill="none"><path d="M2 30L2 2L30 2" stroke="rgba(201,168,76,0.45)" stroke-width="1"/><circle cx="2" cy="2" r="1.5" fill="rgba(201,168,76,0.6)"/></svg></div>
+  <div class="bracket br-tr"><svg viewBox="0 0 32 32" fill="none"><path d="M2 30L2 2L30 2" stroke="rgba(201,168,76,0.45)" stroke-width="1"/><circle cx="2" cy="2" r="1.5" fill="rgba(201,168,76,0.6)"/></svg></div>
+  <div class="bracket br-bl"><svg viewBox="0 0 32 32" fill="none"><path d="M2 30L2 2L30 2" stroke="rgba(201,168,76,0.45)" stroke-width="1"/><circle cx="2" cy="2" r="1.5" fill="rgba(201,168,76,0.6)"/></svg></div>
+  <div class="bracket br-br"><svg viewBox="0 0 32 32" fill="none"><path d="M2 30L2 2L30 2" stroke="rgba(201,168,76,0.45)" stroke-width="1"/><circle cx="2" cy="2" r="1.5" fill="rgba(201,168,76,0.6)"/></svg></div>
+
+  <div class="top-brand">Loyal Heart &nbsp;·&nbsp; Stories</div>
+
+  <div class="center-block" id="centerBlock">
+    <div class="lh-wrap"><span class="loyal-heart">LOYAL HEART</span></div>
+    <div class="gold-rule"></div>
+    <div class="tagline">
+      <span class="tl tl-1">Where</span>
+      <span class="tl tl-2">EMOTIONS</span>
+      <span class="tl tl-3">meet</span>
+      <span class="tl tl-4">Creativity</span>
+    </div>
+    <div class="content-tags">
+      Stories · Quotes · Reels<br>Psychology · Relationship<br>Comedy · Music · Polls<br>Knowledge · Webseries
+    </div>
+  </div>
+
+  <div class="bridge" id="bridge">
+    <p class="bridge-line">Every great journey begins with<br>a single page turned…</p>
+    <div class="bridge-find-wrap">
+      <span class="bridge-find" id="findWord">SWIPE</span>
+      <div class="bridge-find-shine"></div>
+    </div>
+    <div class="scroll-cue">
+      <div class="s-dot"></div>
+      <div class="s-dot"></div>
+      <div class="s-dot"></div>
+    </div>
+  </div>
+</section>
+
+<section id="page4">
+  <canvas id="story-canvas"></canvas>
+  <div class="fade-top"></div>
+  <div class="fade-bot"></div>
+  <div class="fade-left"></div>
+  <div class="fade-right"></div>
+
+  <div class="p4-overlay">
+    <div class="p4-label" id="p4label">Chapter One</div>
+    <div class="p4-spacer"></div>
+    <p class="p4-sub" id="p4sub">
+      Every emotion has a beginning.<br>
+      Every heart holds a tale untold.<br>
+      <em>This is where yours lives.</em>
+    </p>
+    <div class="p4-btn" id="p4btn">
+      <span>Enter Stories</span>
+      <span class="btn-arrow">→</span>
+    </div>
+  </div>
+</section>
+
+    <section id="page5">
+        <div class="notice-container">
+            <h2>Notice</h2>
+            <p>
+                Our website is currently under development, and we are working hard to bring you a great experience.<br><br>
+                New content will be available soon.<br>
+                Please check back for updates.<br><br>
+                Thank you for your patience and support.
+            </p>
+
+            <h2 class="contact-heading">Contact Us</h2>
+            <p>
+                Email: contact.loyalheart@gmail.com<br><br>
+                If you have any questions, suggestions, or inquiries, feel free to reach out to us.<br>
+                Thank you for connecting with Loyal Heart.
+            </p>
+
+            <div class="like-text">
+                Loved it? Let us know with a like! ❤️
+            </div>
+        </div>
+    </section>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ══════════════════════════════════════
+//  SCROLL PARALLAX
+// ══════════════════════════════════════
+const centerBlock = document.getElementById('centerBlock');
+const bridge      = document.getElementById('bridge');
+const findWord    = document.getElementById('findWord');
+const page4el     = document.getElementById('page4');
+
+let lastScrollY = 0, ticking = false;
+let p4Triggered = false;
+let storyScrollProg = 0;
+
+function updateParallax() {
+  ticking = false;
+  const sY = window.scrollY;
+  const vh = window.innerHeight;
+  const p4top = page4el.getBoundingClientRect().top;
+
+  const p4prog = Math.max(0, Math.min(1, (vh - p4top) / vh));
+  storyScrollProg = p4prog;
+
+  const cProg = Math.min(1, sY / (vh * 0.55));
+  centerBlock.style.transform = `translateY(${-cProg * 60}px)`;
+  centerBlock.style.opacity   = `${Math.max(0, 1 - cProg * 1.5)}`;
+
+  const bProg = Math.min(1, sY / (vh * 0.8));
+  bridge.style.transform = `translateY(${-bProg * 30}px)`;
+  bridge.style.opacity   = `${Math.max(0, 1 - Math.max(0, bProg - 0.55) * 4)}`;
+
+  const findProg = Math.min(1, sY / (vh * 0.7));
+  const findScale = 1 + findProg * 2.5;
+  const findOpacity = Math.max(0, 1 - findProg * 1.1);
+  const findGlow = findProg * findOpacity * 18;
+  findWord.style.transform   = `scale(${findScale})`;
+  findWord.style.opacity     = `${findOpacity}`;
+  findWord.style.textShadow  = `0 0 ${findGlow}px rgba(201,168,76,${findProg * findOpacity * 0.9})`;
+
+  if (p4prog > 0.25 && !p4Triggered) {
+    p4Triggered = true;
+    document.getElementById('p4label').classList.add('show');
+    setTimeout(() => document.getElementById('p4sub').classList.add('show'), 500);
+    setTimeout(() => document.getElementById('p4btn').classList.add('show'), 950);
+  }
+}
+
+window.addEventListener('scroll', () => {
+  lastScrollY = window.scrollY;
+  if (!ticking) { requestAnimationFrame(updateParallax); ticking = true; }
+}, { passive: true });
+
+// ══════════════════════════════════════
+//  THREE.JS
+// ══════════════════════════════════════
+const canvas = document.getElementById('story-canvas');
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.5));
+renderer.setSize(W(), H());
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+renderer.toneMapping       = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.3;
+
+const scene  = new THREE.Scene();
+scene.fog    = new THREE.FogExp2(0x0d0a05, 0.038);
+
+const camera = new THREE.PerspectiveCamera(52, W() / H(), 0.1, 100);
+camera.position.set(0, 0.4, 7.5);
+
+// ── LIGHTS ──
+scene.add(new THREE.AmbientLight(0xf5ede0, 0.4));
+
+const keyLight = new THREE.SpotLight(0xffd280, 6, 28, Math.PI / 3.5, 0.35, 1.2);
+keyLight.position.set(0, 6, 6);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.width  = 2048;
+keyLight.shadow.mapSize.height = 2048;
+keyLight.shadow.bias = -0.001;
+scene.add(keyLight);
+scene.add(keyLight.target);
+
+const fillLight = new THREE.PointLight(0xa04030, 3, 22);
+fillLight.position.set(-5, 1, 4);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xffe08a, 3.2);
+rimLight.position.set(4, 4, -3);
+scene.add(rimLight);
+
+const underLight = new THREE.PointLight(0xc97820, 2.5, 12);
+underLight.position.set(0, -2.5, 4);
+scene.add(underLight);
+
+const bounceLight = new THREE.PointLight(0xc9a84c, 1.8, 10);
+bounceLight.position.set(0, -1.2, 5);
+scene.add(bounceLight);
+
+const topFill = new THREE.DirectionalLight(0xffeebb, 1.5);
+topFill.position.set(0, 8, 4);
+scene.add(topFill);
+
+// ── MATERIALS ──
+// Emissive is set up to support the glowing text animation, DoubleSide ensures scale-flipping works for the mirror reflection
+const goldFront = new THREE.MeshStandardMaterial({
+  color: 0xd4a030, metalness: 0.95, roughness: 0.08, emissive: 0x000000, side: THREE.DoubleSide
+});
+const goldSide = new THREE.MeshStandardMaterial({
+  color: 0x6a3e08, metalness: 0.88, roughness: 0.22, emissive: 0x000000, side: THREE.DoubleSide
+});
+
+const EXT = {
+  depth: 0.75,
+  bevelEnabled: true,
+  bevelThickness: 0.09,
+  bevelSize: 0.06,
+  bevelSegments: 10,
+};
+
+function buildMesh(shape) {
+  const geo  = new THREE.ExtrudeGeometry(shape, EXT);
+  // CLONED MATERIALS: This is what allows each letter to pulse independently!
+  const mesh = new THREE.Mesh(geo, [goldFront.clone(), goldSide.clone()]);
+  mesh.castShadow    = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+// ── NEW PERFECT "S" SHAPE ──
+function makeS() {
+  const shape = new THREE.Shape();
+  
+  shape.moveTo(1.35, 1.25);
+  shape.lineTo(1.0, 1.25);
+  shape.bezierCurveTo(1.0, 1.5, 0.4, 1.5, 0.4, 1.15);
+  shape.bezierCurveTo(0.4, 0.8, 1.35, 0.9, 1.35, 0.45);
+  shape.bezierCurveTo(1.35, -0.1, 0.05, -0.1, 0.05, 0.35);
+  shape.lineTo(0.4, 0.35);
+  shape.bezierCurveTo(0.4, 0.1, 1.0, 0.1, 1.0, 0.45);
+  shape.bezierCurveTo(1.0, 0.8, 0.05, 0.7, 0.05, 1.15);
+  shape.bezierCurveTo(0.05, 1.75, 1.35, 1.75, 1.35, 1.25);
+  
+  return buildMesh(shape);
+}
+
+// ── T ──
+function makeT() {
+  const g = new THREE.Group();
+  const bar = new THREE.Shape();
+  bar.moveTo(0,1.38); bar.lineTo(1.4,1.38);
+  bar.lineTo(1.4,1.65); bar.lineTo(0,1.65); bar.closePath();
+  const stem = new THREE.Shape();
+  stem.moveTo(0.53,0); stem.lineTo(0.87,0);
+  stem.lineTo(0.87,1.65); stem.lineTo(0.53,1.65); stem.closePath();
+  [bar, stem].forEach(s => g.add(buildMesh(s)));
+  return g;
+}
+
+// ── O ──
+function makeO() {
+  const g = new THREE.Group();
+  const o = new THREE.Shape();
+  o.absarc(0.7, 0.825, 0.76, 0, Math.PI*2, false);
+  const hole = new THREE.Path();
+  hole.absarc(0.7, 0.825, 0.47, 0, Math.PI*2, true);
+  o.holes.push(hole);
+  g.add(buildMesh(o));
+  return g;
+}
+
+// ── R ──
+function makeR() {
+  const g = new THREE.Group();
+  const stem = new THREE.Shape();
+  stem.moveTo(0,0); stem.lineTo(0.33,0);
+  stem.lineTo(0.33,1.65); stem.lineTo(0,1.65); stem.closePath();
+  const bump = new THREE.Shape();
+  bump.moveTo(0.33,0.88);
+  bump.bezierCurveTo(0.33,0.88, 1.4,0.9,  1.4,1.26);
+  bump.bezierCurveTo(1.4,1.62,  0.88,1.65,0.62,1.65);
+  bump.lineTo(0.33,1.65); bump.lineTo(0.33,1.35);
+  bump.bezierCurveTo(0.33,1.35, 0.85,1.35,0.85,1.24);
+  bump.bezierCurveTo(0.85,1.12, 0.33,1.1, 0.33,1.1);
+  bump.closePath();
+  const leg = new THREE.Shape();
+  leg.moveTo(0.33,0.88); leg.lineTo(1.05,0);
+  leg.lineTo(1.4,0);     leg.lineTo(0.7,0.88);
+  leg.closePath();
+  [stem, bump, leg].forEach(s => g.add(buildMesh(s)));
+  return g;
+}
+
+// ── Y ──
+function makeY() {
+  const g = new THREE.Group();
+  const lArm = new THREE.Shape();
+  lArm.moveTo(0,1.65); lArm.lineTo(0.32,1.65);
+  lArm.lineTo(0.72,0.95); lArm.lineTo(0.52,0.95); lArm.closePath();
+  const rArm = new THREE.Shape();
+  rArm.moveTo(1.4,1.65); rArm.lineTo(1.08,1.65);
+  rArm.lineTo(0.52,0.95); rArm.lineTo(0.72,0.95); rArm.closePath();
+  const stem = new THREE.Shape();
+  stem.moveTo(0.5,0); stem.lineTo(0.82,0);
+  stem.lineTo(0.82,0.98); stem.lineTo(0.5,0.98); stem.closePath();
+  [lArm, rArm, stem].forEach(s => g.add(buildMesh(s)));
+  return g;
+}
+
+// ── ASSEMBLE ──
+const letterGroup = new THREE.Group();
+const LETTER_W = 1.4, GAP = 0.28;
+const builders  = [makeS, makeT, makeO, makeR, makeY];
+const totalW    = builders.length * LETTER_W + (builders.length - 1) * GAP;
+
+builders.forEach((fn, i) => {
+  const letter = fn();
+  letter.position.x = -totalW / 2 + i * (LETTER_W + GAP);
+  letter.position.y = -0.825;
+  letterGroup.add(letter);
+});
+scene.add(letterGroup);
+
+// ── REFLECTION MIRROR LOGIC ──
+const floorY = -1.2;
+
+// Retain original materials so reflection shines flawlessly & perfectly inherits the glowing emissive wave
+const reflGroup = letterGroup.clone();
+scene.add(reflGroup);
+
+// ── FLOOR ──
+const floorGeo = new THREE.PlaneGeometry(80, 40);
+const floorMat = new THREE.MeshStandardMaterial({
+  color: 0x050402, // Dark lake-like base
+  metalness: 0.9, 
+  roughness: 0.1,
+  transparent: true, 
+  opacity: 0.5, // Allow reflection to shine through beautifully
+  depthWrite: false // Prevents the floor hiding things beneath it
+});
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = floorY;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// ── PARTICLES ──
+const pCount = 6200;
+const pGeo   = new THREE.BufferGeometry();
+const pPos   = new Float32Array(pCount * 3);
+for (let i = 0; i < pCount; i++) {
+  pPos[i*3]   = (Math.random()-0.5)*40;
+  pPos[i*3+1] = (Math.random()-0.5)*35;
+  pPos[i*3+2] = (Math.random()-0.5)*30 - 2;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
+  color: 0xd4a84c, 
+  size: 0.06,
+  transparent: true, 
+  opacity: 0.55,
+  sizeAttenuation: true,
+}));
+scene.add(particles);
+
+// Glowing orbs
+function addOrb(x,y,z,col,r) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r,8,8),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.15})
+  );
+  m.position.set(x,y,z); scene.add(m); return m;
+}
+const orb1 = addOrb(-3, 2, 2, 0xc9a84c, 0.8);
+const orb2 = addOrb( 3,-1, 1, 0x8b3a3a, 0.6);
+
+// ── FIT LETTERS TO SCREEN ──
+let baseScale = 1;
+
+function fitLetters() {
+  const fov  = camera.fov * Math.PI / 180;
+  const dist = camera.position.z;
+  const visW = 2 * Math.tan(fov/2) * dist * camera.aspect;
+  baseScale  = (visW * 0.86) / totalW;
+  
+  const targetScale = baseScale * (0.35 + storyScrollProg * 0.65);
+  letterGroup.scale.setScalar(targetScale);
+  
+  reflGroup.scale.set(targetScale, -targetScale, targetScale);
+}
+
+function updateReflection() {
+  reflGroup.position.x = letterGroup.position.x;
+  reflGroup.position.y = (2 * floorY) - letterGroup.position.y;
+  
+  reflGroup.rotation.x = letterGroup.rotation.x;
+  reflGroup.rotation.y = letterGroup.rotation.y;
+  reflGroup.rotation.z = letterGroup.rotation.z;
+}
+
+// ── ANIMATION ──
+let time = 0;
+let gyroX = 0, gyroY = 0;
+let camTargetX = 0, camTargetY = 0.4;
+
+function animate() {
+  requestAnimationFrame(animate);
+  time += 0.007;
+
+  // Zoom in as page4 scrolls
+  const targetScale = baseScale * (0.35 + storyScrollProg * 0.65);
+  const currentScale = letterGroup.scale.x;
+  const newScale = currentScale + (targetScale - currentScale) * 0.08;
+  
+  // Scale original and mirror image identically (flip Y for mirror)
+  letterGroup.scale.setScalar(newScale);
+  reflGroup.scale.set(newScale, -newScale, newScale);
+
+  // Float animation
+  const floatY = Math.sin(time * 0.65) * 0.07;
+  letterGroup.position.y = floatY;
+
+  // Rotation
+  letterGroup.rotation.y = Math.sin(time * 0.45) * 0.1 + gyroX * 0.15;
+  letterGroup.rotation.x = Math.cos(time * 0.35) * 0.03 + gyroY * 0.04 + 0.04;
+
+  // Track the reflection
+  updateReflection();
+
+  // EMISSIVE TEXT GLOW ANIMATION (Left to Right Wave)
+  const glowSpeed = 3.5;
+  const glowSpread = 0.8;
+  letterGroup.children.forEach((letter, i) => {
+    const wave = (Math.sin(time * glowSpeed - i * glowSpread) + 1) / 2;
+    const intensity = Math.pow(wave, 6) * 0.65; 
+    letter.traverse(c => {
+      if (c.isMesh) {
+        c.material[0].emissive.setHex(0xd4a030);
+        c.material[0].emissiveIntensity = intensity;
+        c.material[1].emissive.setHex(0xd4a030);
+        c.material[1].emissiveIntensity = intensity * 0.25; 
+      }
+    });
+  });
+
+  // Lights animation
+  keyLight.position.x  = Math.cos(time * 0.5) * 3;
+  keyLight.position.y  = Math.sin(time * 0.35) * 1.5 + 5;
+  fillLight.position.x = Math.sin(time * 0.4) * 4 - 2;
+  fillLight.position.z = Math.cos(time * 0.4) * 2 + 4;
+
+  orb1.position.x = -3 + Math.sin(time * 0.3) * 0.8;
+  orb1.position.y =  2 + Math.cos(time * 0.4) * 0.5;
+  orb2.position.x =  3 + Math.cos(time * 0.35) * 0.6;
+  orb2.position.y = -1 + Math.sin(time * 0.5) * 0.4;
+
+  camTargetX += (gyroX * 0.3 - camTargetX) * 0.05;
+  camTargetY += (0.4 + gyroY * 0.2 - camTargetY) * 0.05;
+  camera.position.x = camTargetX;
+  camera.position.y = camTargetY;
+  camera.lookAt(0, 0, 0);
+
+  particles.rotation.y += 0.0003;
+  renderer.render(scene, camera);
+}
+
+// ── RESIZE ──
+window.addEventListener('resize', () => {
+  camera.aspect = W() / H();
+  camera.updateProjectionMatrix();
+  renderer.setSize(W(), H());
+  fitLetters();
+}, { passive: true });
+
+// ── GYRO ──
+if (typeof DeviceOrientationEvent !== 'undefined') {
+  window.addEventListener('deviceorientation', e => {
+    gyroX = Math.max(-1, Math.min(1, (e.gamma||0) / 40));
+    gyroY = Math.max(-1, Math.min(1, ((e.beta||0)-30) / 50));
+  }, { passive: true });
+}
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  fitLetters();
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('out');
+    animate();
+  }, 2600);
+});
+
+        // Scroll to Page 5 when the button on Page 4 is clicked
+        document.getElementById('p4btn').addEventListener('click', () => {
+            document.getElementById('page5').scrollIntoView({ behavior: 'smooth' });
+        });
+
+</script>
+</body>
+</html>

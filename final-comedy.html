@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Loyal Heart — Comedy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,700;0,900;1,400&family=Space+Mono:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --void: #0a0a08;
+            --bright: #f5f500;
+            --white: #fffff0;
+            --green: #39ff14;
+            --pink: #ff2d78;
+            --accent: #f5f500;
+        }
+
+        html {
+            overflow-y: scroll;
+        }
+
+        body {
+            width: 100%;
+            overflow-x: hidden;
+            background: var(--void);
+            color: var(--white);
+            font-family: 'Rubik', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 2px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bright);
+            border-radius: 2px;
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--void);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transition: opacity 1.2s ease;
+        }
+
+        #loader.out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .ldr-emoji {
+            font-size: 44px;
+            opacity: 0;
+            animation: ldrBounce 1s cubic-bezier(0.36, 0.07, 0.19, 0.97) 0.3s infinite, fI 0.5s ease 0.2s forwards;
+        }
+
+        @keyframes ldrBounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(8deg); }
+        }
+
+        .ldr-txt {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.3em;
+            color: var(--bright);
+            opacity: 0;
+            animation: fI 0.8s ease 0.7s forwards;
+        }
+
+        .ldr-bar {
+            width: 70px;
+            height: 2px;
+            background: rgba(245, 245, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fI 0.5s ease 1s forwards;
+            border-radius: 1px;
+        }
+
+        .ldr-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--green), var(--bright), var(--pink));
+            transform: translateX(-100%);
+            animation: bS 1.8s ease 1.2s forwards;
+        }
+
+        @keyframes fI {
+            to { opacity: 1; }
+        }
+
+        @keyframes bS {
+            to { transform: translateX(100%); }
+        }
+
+        #page3 {
+            height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 0 22px;
+        }
+
+        #page3::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse 120% 50% at 50% 5%, rgba(57, 255, 20, 0.06) 0%, transparent 55%), 
+                        radial-gradient(ellipse 80% 60% at 80% 90%, rgba(255, 45, 120, 0.05) 0%, transparent 50%);
+        }
+
+        #page3::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: radial-gradient(circle, rgba(245, 245, 0, 0.08) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+        }
+
+        .bk {
+            position: absolute;
+            z-index: 2;
+            opacity: 0;
+            animation: fI 1s ease 0.5s forwards;
+        }
+
+        .bk-tl { top: 18px; left: 18px; }
+        .bk-tr { top: 18px; right: 18px; transform: rotate(90deg); }
+        .bk-bl { bottom: 108px; left: 18px; transform: rotate(-90deg); }
+        .bk-br { bottom: 108px; right: 18px; transform: rotate(180deg); }
+
+        .top-brand {
+            position: relative;
+            z-index: 3;
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            letter-spacing: 0.25em;
+            color: var(--bright);
+            opacity: 0;
+            margin-top: 22px;
+            animation: fI 1s ease 0.6s forwards;
+        }
+
+        .center-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            z-index: 3;
+            padding: 12px 0;
+            will-change: transform, opacity;
+        }
+
+        .lh-mask {
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .loyal-heart {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(2rem, 9.5vw, 3.1rem);
+            letter-spacing: 0.1em;
+            color: var(--white);
+            line-height: 1;
+            display: block;
+            transform: translateY(105%);
+            animation: slUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+        }
+
+        .bright-rule {
+            width: 70px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green), var(--bright), var(--pink));
+            margin: 14px auto 18px;
+            opacity: 0;
+            animation: fI 1s ease 1.4s forwards;
+            border-radius: 2px;
+        }
+
+        .tagline {
+            line-height: 1;
+            text-align: center;
+        }
+
+        .tl {
+            display: block;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        .tl-1 {
+            font-family: 'Rubik', sans-serif;
+            font-style: italic;
+            font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+            color: rgba(255, 255, 240, 0.6);
+            margin-bottom: 5px;
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
+        }
+
+        .tl-2 {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(0.55rem, 2.4vw, 0.75rem);
+            letter-spacing: 0.22em;
+            color: var(--bright);
+            margin-bottom: 5px;
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.7s forwards;
+        }
+
+        .tl-3 {
+            font-family: 'Rubik', sans-serif;
+            font-style: italic;
+            font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+            color: rgba(255, 255, 240, 0.6);
+            margin-bottom: 5px;
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.9s forwards;
+        }
+
+        .tl-4 {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1.4rem, 5.5vw, 1.9rem);
+            color: var(--white);
+            animation: fUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.1s forwards;
+        }
+
+        .content-tags {
+            margin-top: 26px;
+            font-family: 'Space Mono', monospace;
+            font-size: 7px;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 240, 0.18);
+            text-align: center;
+            line-height: 2.4;
+            opacity: 0;
+            animation: fI 1.5s ease 2.9s forwards;
+        }
+
+        .bridge {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 26px;
+            position: relative;
+            z-index: 3;
+            will-change: transform, opacity;
+        }
+
+        .bridge-line {
+            font-family: 'Rubik', sans-serif;
+            font-size: clamp(0.8rem, 3.2vw, 0.96rem);
+            color: rgba(255, 255, 240, 0.28);
+            text-align: center;
+            line-height: 2;
+            opacity: 0;
+            animation: fI 1s ease 3.1s forwards;
+        }
+
+        .find-wrap {
+            position: relative;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .find-word {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(2.6rem, 10.5vw, 4.2rem);
+            letter-spacing: 0.15em;
+            padding-left: 0.15em;
+            margin: 0;
+            color: var(--bright);
+            opacity: 0;
+            animation: fI 1.2s ease 3.4s forwards;
+            transform-origin: center center;
+            position: relative;
+        }
+
+        .find-word::after {
+            content: '';
+            display: block;
+            width: 50%;
+            height: 3px;
+            margin: 6px auto 0;
+            background: linear-gradient(90deg, var(--green), var(--bright), var(--pink));
+            border-radius: 2px;
+        }
+
+        .find-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 55%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(245, 245, 0, 0.3), transparent);
+            animation: fS 3s ease 4.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes fS {
+            0% { left: -55%; }
+            40%, 100% { left: 120%; }
+        }
+
+        .scroll-cue {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-top: 14px;
+            opacity: 0;
+            animation: fI 1s ease 4s forwards;
+        }
+
+        .s-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--bright);
+        }
+
+        .s-dot:nth-child(1) { animation: sP 1.4s ease-in-out infinite 0s; }
+        .s-dot:nth-child(2) { animation: sP 1.4s ease-in-out infinite 0.14s; opacity: 0.5; }
+        .s-dot:nth-child(3) { animation: sP 1.4s ease-in-out infinite 0.28s; opacity: 0.25; }
+
+        @keyframes sP {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.8); opacity: 1; }
+        }
+
+        #page4 {
+            height: 100svh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--void); /* Force consistent background */
+        }
+
+        #comedy-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1;
+        }
+
+        .fade-top {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 200px;
+            z-index: 3;
+            pointer-events: none;
+            background: linear-gradient(180deg, var(--void) 0%, transparent 100%);
+        }
+
+        .fade-left {
+            position: absolute;
+            top: 0; bottom: 0; left: 0;
+            width: 40px;
+            z-index: 3;
+            pointer-events: none;
+            background: linear-gradient(90deg, var(--void), transparent);
+        }
+
+        .fade-right {
+            position: absolute;
+            top: 0; bottom: 0; right: 0;
+            width: 40px;
+            z-index: 3;
+            pointer-events: none;
+            background: linear-gradient(270deg, var(--void), transparent);
+        }
+
+        .p4-overlay {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 20px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        .p4-label {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(16px, 4vw, 22px);
+            letter-spacing: 0.65em;
+            color: var(--bright);
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            text-transform: uppercase;
+            font-weight: 800; 
+        }
+
+        .p4-label.show { opacity: 0.8; }
+
+        .p4-spacer {
+            height: 58vw;
+            max-height: 320px;
+            min-height: 220px;
+        }
+
+        .p4-sub {
+            font-family: 'Rubik', sans-serif;
+            font-style: italic;
+            font-size: clamp(0.88rem, 3.5vw, 1.1rem);
+            color: rgba(255, 255, 240, 0.5);
+            line-height: 2.1;
+            max-width: 300px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
+            pointer-events: auto;
+        }
+
+        .p4-sub.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .p4-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 26px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--bright);
+            border: 1px solid rgba(245, 245, 0, 0.4);
+            padding: 13px 30px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 1s ease 0.9s, transform 1s ease 0.9s;
+            cursor: pointer;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+            font-weight: 300;
+        }
+
+        .p4-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--bright);
+            transform: translateX(-101%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .p4-btn:active::before { transform: translateX(0); }
+        .p4-btn:active span { color: var(--void); }
+
+        .p4-btn span, .arr {
+            position: relative;
+            z-index: 1;
+            transition: color 0.4s;
+        }
+
+        .arr { font-size: 14px; }
+        .p4-btn.show { opacity: 1; transform: translateY(0); }
+
+        @keyframes fUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slUp { to { transform: translateY(0); } }
+        
+                /* ══════════ PAGE 5 (NOTICE & CONTACT) ══════════ */
+        #page5 {
+            min-height: 100svh;
+            /* Auto-adapts to each chapter's specific background and text colors */
+            background: var(--void, var(--deep, var(--ink, #0a0a08)));
+            color: var(--white, var(--light, var(--film, var(--blush, var(--cream, var(--paper, #fff))))));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .notice-container {
+            max-width: 650px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 50px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .notice-container h2 {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .notice-container p {
+            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+            line-height: 1.8;
+            opacity: 0.75;
+            margin-bottom: 45px;
+        }
+
+        .notice-container .contact-heading {
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 15px;
+        }
+
+        .notice-container .like-text {
+            font-size: clamp(1.3rem, 5vw, 2rem);
+            font-weight: 800;
+            opacity: 1;
+            margin-top: 10px;
+            letter-spacing: 0.05em;
+            /* Inherits the chapter's specific accent color */
+            color: var(--accent, var(--amber, var(--violet, var(--gold, var(--magenta, inherit)))));
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div id="loader">
+        <div class="ldr-emoji">😂</div>
+        <div class="ldr-txt">// loyal_heart.exe</div>
+        <div class="ldr-bar"></div>
+    </div>
+
+    <section id="page3">
+        <div class="bk bk-tl">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(245,245,0,0.45)" stroke-width="1"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(245,245,0,0.7)"/>
+            </svg>
+        </div>
+        <div class="bk bk-tr">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(245,245,0,0.45)" stroke-width="1"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(245,245,0,0.7)"/>
+            </svg>
+        </div>
+        <div class="bk bk-bl">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(245,245,0,0.45)" stroke-width="1"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(245,245,0,0.7)"/>
+            </svg>
+        </div>
+        <div class="bk bk-br">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M2 26L2 2L26 2" stroke="rgba(245,245,0,0.45)" stroke-width="1"/>
+                <circle cx="2" cy="2" r="1.2" fill="rgba(245,245,0,0.7)"/>
+            </svg>
+        </div>
+        <div class="top-brand">Loyal Heart // Comedy</div>
+        <div class="center-block" id="centerBlock">
+            <div class="lh-mask"><span class="loyal-heart">LOYAL HEART</span></div>
+            <div class="bright-rule"></div>
+            <div class="tagline">
+                <span class="tl tl-1">Where</span>
+                <span class="tl tl-2">EMOTIONS</span>
+                <span class="tl tl-3">meet</span>
+                <span class="tl tl-4">Creativity</span>
+            </div>
+            <div class="content-tags">
+                Stories · Quotes · Reels<br>Psychology · Relationship<br>Comedy · Music · Polls<br>Knowledge · Webseries
+            </div>
+        </div>
+        <div class="bridge" id="bridge">
+            <p class="bridge-line">Because sometimes you just need<br>to laugh at the chaos of being human…</p>
+            <div class="find-wrap">
+                <span class="find-word" id="findWord">SWIPE</span>
+                <div class="find-shine"></div>
+            </div>
+            <div class="scroll-cue">
+                <div class="s-dot"></div>
+                <div class="s-dot"></div>
+                <div class="s-dot"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="page4">
+        <canvas id="comedy-canvas"></canvas>
+        <div class="fade-top"></div>
+        <div class="fade-left"></div>
+        <div class="fade-right"></div>
+        <div class="p4-overlay">
+            <div class="p4-label" id="p4label">CHAPTER 06</div>
+            <div class="p4-spacer"></div>
+            <p class="p4-sub" id="p4sub">
+                Relatable. Chaotic. Perfectly you.<br>
+                Comedy that makes you say<br>
+                <em>"bro this is literally my life."</em>
+            </p>
+            <div class="p4-btn" id="p4btn">
+                <span>Browse Comedy</span>
+                <span class="arr">😂</span>
+            </div>
+        </div>
+    </section>
+    
+        <section id="page5">
+        <div class="notice-container">
+            <h2>Notice</h2>
+            <p>
+                Our website is currently under development, and we are working hard to bring you a great experience.<br><br>
+                New content will be available soon.<br>
+                Please check back for updates.<br><br>
+                Thank you for your patience and support.
+            </p>
+
+            <h2 class="contact-heading">Contact Us</h2>
+            <p>
+                Email: contact.loyalheart@gmail.com<br><br>
+                If you have any questions, suggestions, or inquiries, feel free to reach out to us.<br>
+                Thank you for connecting with Loyal Heart.
+            </p>
+
+            <div class="like-text">
+                Loved it? Let us know with a like! ❤️
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const centerBlock = document.getElementById('centerBlock'),
+              bridge = document.getElementById('bridge'),
+              findWord = document.getElementById('findWord'),
+              page4el = document.getElementById('page4');
+
+        let lastSY = 0, ticking = false, p4Done = false, storyProg = 0;
+
+        function doP() {
+            ticking = false;
+            const sY = lastSY;
+            const vh = window.innerHeight;
+            const p4top = page4el.getBoundingClientRect().top;
+            
+            storyProg = Math.max(0, Math.min(1, (vh - p4top) / vh));
+            const cp = Math.min(1, sY / (vh * 0.55));
+            
+            centerBlock.style.transform = `translateY(${-cp * 65}px)`;
+            centerBlock.style.opacity = `${Math.max(0, 1 - cp * 1.5)}`;
+            
+            const bp = Math.min(1, sY / (vh * 0.8));
+            bridge.style.transform = `translateY(${-bp * 30}px)`;
+            bridge.style.opacity = `${Math.max(0, 1 - Math.max(0, bp - 0.52) * 4.5)}`;
+            
+            const fp = Math.min(1, sY / (vh * 0.68));
+            findWord.style.transform = `scale(${1 + fp * 2.8})`;
+            findWord.style.opacity = `${Math.max(0, 1 - fp * 1.1)}`;
+            findWord.style.textShadow = `0 0 ${fp * (1 - fp) * 28}px rgba(245,245,0,${fp * 0.9})`;
+
+            if (storyProg > 0.22 && !p4Done) {
+                p4Done = true;
+                document.getElementById('p4label').classList.add('show');
+                setTimeout(() => document.getElementById('p4sub').classList.add('show'), 500);
+                setTimeout(() => document.getElementById('p4btn').classList.add('show'), 950);
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            lastSY = window.scrollY;
+            if (!ticking) {
+                requestAnimationFrame(doP);
+                ticking = true;
+            }
+        }, { passive: true });
+
+        const canvas = document.getElementById('comedy-canvas'),
+              W = () => window.innerWidth,
+              H = () => window.innerHeight;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.5));
+        renderer.setSize(W(), H());
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.3;
+        renderer.setClearColor(0x0a0a08, 1);
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0a0a08, 0.04);
+
+        const camera = new THREE.PerspectiveCamera(50, W() / H(), 0.1, 100);
+        camera.position.set(0, 0.3, 8);
+        scene.add(new THREE.AmbientLight(0xffff80, 0.4));
+
+        const kL = new THREE.SpotLight(0xffff40, 6, 26, Math.PI / 3.8, 0.3, 1.1);
+        kL.position.set(0, 6, 5);
+        kL.castShadow = true;
+        kL.shadow.mapSize.width = kL.shadow.mapSize.height = 2048;
+        kL.shadow.bias = -0.001;
+        scene.add(kL);
+        scene.add(kL.target);
+
+        const fL = new THREE.PointLight(0xff2d78, 3, 20);
+        fL.position.set(-5, 2, 4);
+        scene.add(fL);
+
+        const rL = new THREE.DirectionalLight(0x39ff14, 2.5);
+        rL.position.set(4, 3, -3);
+        scene.add(rL);
+
+        const bL = new THREE.PointLight(0xffff00, 2, 10);
+        bL.position.set(0, -1.5, 5);
+        scene.add(bL);
+
+        const tF = new THREE.DirectionalLight(0xffffff, 1.5);
+        tF.position.set(0, 8, 4);
+        scene.add(tF);
+
+        const yFront = new THREE.MeshStandardMaterial({ color: 0xeaea00, metalness: 0.85, roughness: 0.12, emissive: 0x000000 });
+        const ySide = new THREE.MeshStandardMaterial({ color: 0x404000, metalness: 0.8, roughness: 0.28, emissive: 0x000000 });
+
+        const EXT = { depth: 0.7, bevelEnabled: true, bevelThickness: 0.09, bevelSize: 0.06, bevelSegments: 8 };
+
+        function bM(s) {
+            const g = new THREE.ExtrudeGeometry(s, EXT);
+            const m = new THREE.Mesh(g, [yFront.clone(), ySide.clone()]);
+            m.castShadow = true;
+            m.receiveShadow = true;
+            return m;
+        }
+
+        // --- LETTERS FOR "COMEDY" ---
+
+        function makeC() {
+            const g = new THREE.Group();
+            const s = new THREE.Shape();
+            s.moveTo(1.38, 1.65); s.lineTo(0, 1.65); s.lineTo(0, 0); s.lineTo(1.38, 0);
+            s.lineTo(1.38, 0.32); s.lineTo(0.32, 0.32); s.lineTo(0.32, 1.33); s.lineTo(1.38, 1.33); s.lineTo(1.38, 1.65);
+            g.add(bM(s));
+            return g;
+        }
+
+        function makeO() {
+            const g = new THREE.Group();
+            const s = new THREE.Shape();
+            s.moveTo(0,0); s.lineTo(1.38,0); s.lineTo(1.38,1.65); s.lineTo(0,1.65); s.lineTo(0,0);
+            const hole = new THREE.Path();
+            hole.moveTo(0.32, 0.32); hole.lineTo(0.32, 1.33); hole.lineTo(1.06, 1.33); hole.lineTo(1.06, 0.32); hole.lineTo(0.32, 0.32);
+            s.holes.push(hole);
+            g.add(bM(s));
+            return g;
+        }
+
+        function makeM() {
+            const g = new THREE.Group();
+            const lS = new THREE.Shape();
+            lS.moveTo(0, 0); lS.lineTo(0.3, 0); lS.lineTo(0.3, 1.65); lS.lineTo(0, 1.65); lS.closePath();
+            const rS = new THREE.Shape();
+            rS.moveTo(1.1, 0); rS.lineTo(1.4, 0); rS.lineTo(1.4, 1.65); rS.lineTo(1.1, 1.65); rS.closePath();
+            const lDiag = new THREE.Shape();
+            lDiag.moveTo(0.3, 1.65); lDiag.lineTo(0.58, 1.65); lDiag.lineTo(0.85, 0.9); lDiag.lineTo(0.57, 0.9); lDiag.closePath();
+            const rDiag = new THREE.Shape();
+            rDiag.moveTo(1.1, 1.65); rDiag.lineTo(0.82, 1.65); rDiag.lineTo(0.55, 0.9); rDiag.lineTo(0.83, 0.9); rDiag.closePath();
+            [lS, rS, lDiag, rDiag].forEach(s => g.add(bM(s)));
+            return g;
+        }
+
+        function makeE_() {
+            const g = new THREE.Group();
+            const sp = new THREE.Shape();
+            sp.moveTo(0, 0); sp.lineTo(0.32, 0); sp.lineTo(0.32, 1.65); sp.lineTo(0, 1.65); sp.closePath();
+            const t = new THREE.Shape();
+            t.moveTo(0.32, 1.38); t.lineTo(1.38, 1.38); t.lineTo(1.38, 1.65); t.lineTo(0.32, 1.65); t.closePath();
+            const m = new THREE.Shape();
+            m.moveTo(0.32, 0.76); m.lineTo(1.18, 0.76); m.lineTo(1.18, 1.0); m.lineTo(0.32, 1.0); m.closePath();
+            const b = new THREE.Shape();
+            b.moveTo(0.32, 0); b.lineTo(1.38, 0); b.lineTo(1.38, 0.27); b.lineTo(0.32, 0.27); b.closePath();
+            [sp, t, m, b].forEach(s => g.add(bM(s)));
+            return g;
+        }
+
+        function makeD() {
+            const g = new THREE.Group();
+            const s = new THREE.Shape();
+            s.moveTo(0, 0); s.lineTo(1.0, 0); s.lineTo(1.38, 0.38); s.lineTo(1.38, 1.27); s.lineTo(1.0, 1.65); s.lineTo(0, 1.65); s.lineTo(0, 0);
+            const hole = new THREE.Path();
+            hole.moveTo(0.32, 0.32); hole.lineTo(0.32, 1.33); hole.lineTo(0.86, 1.33); hole.lineTo(1.06, 1.13); hole.lineTo(1.06, 0.52); hole.lineTo(0.86, 0.32); hole.lineTo(0.32, 0.32);
+            s.holes.push(hole);
+            g.add(bM(s));
+            return g;
+        }
+
+        function makeY() {
+            const g = new THREE.Group();
+            const tl = new THREE.Shape();
+            tl.moveTo(0, 1.65); tl.lineTo(0.4, 1.65); tl.lineTo(0.69, 0.85); tl.lineTo(0.29, 0.85); tl.closePath();
+            const tr = new THREE.Shape();
+            tr.moveTo(1.38, 1.65); tr.lineTo(0.98, 1.65); tr.lineTo(0.69, 0.85); tr.lineTo(1.09, 0.85); tr.closePath();
+            const b = new THREE.Shape();
+            b.moveTo(0.53, 0); b.lineTo(0.85, 0); b.lineTo(0.85, 0.85); b.lineTo(0.53, 0.85); b.closePath();
+            [tl, tr, b].forEach(s => g.add(bM(s)));
+            return g;
+        }
+
+        const LW = 1.4, G = 0.22, blds = [makeC, makeO, makeM, makeE_, makeD, makeY];
+        const tW = blds.length * LW + (blds.length - 1) * G;
+        const lg = new THREE.Group();
+
+        blds.forEach((fn, i) => {
+            const l = fn();
+            l.position.x = -tW / 2 + i * (LW + G);
+            l.position.y = -0.825;
+            lg.add(l);
+        });
+        scene.add(lg);
+
+        const floor = new THREE.Mesh(
+            new THREE.PlaneGeometry(60, 20),
+            new THREE.MeshStandardMaterial({ 
+                color: 0x0a0a08, 
+                metalness: 0.95, 
+                roughness: 0.08, 
+                transparent: true, 
+                opacity: 0.5 
+            })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -1.45;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        const rg = lg.clone();
+        scene.add(rg);
+
+        const pC = 4000, pG = new THREE.BufferGeometry(), pP = new Float32Array(pC * 3);
+        for (let i = 0; i < pC; i++) {
+            pP[i * 3] = (Math.random() - 0.5) * 24;
+            pP[i * 3 + 1] = (Math.random() - 0.5) * 16;
+            pP[i * 3 + 2] = (Math.random() - 0.5) * 12 - 2;
+        }
+        pG.setAttribute('position', new THREE.BufferAttribute(pP, 3));
+
+        const pColors = new Float32Array(pC * 3);
+        for (let i = 0; i < pC; i++) {
+            const r = Math.random();
+            if (r < 0.5) {
+                pColors[i * 3] = 0.96; pColors[i * 3 + 1] = 0.96; pColors[i * 3 + 2] = 0;
+            } else if (r < 0.75) {
+                pColors[i * 3] = 1; pColors[i * 3 + 1] = 0.18; pColors[i * 3 + 2] = 0.47;
+            } else {
+                pColors[i * 3] = 0.22; pColors[i * 3 + 1] = 1; pColors[i * 3 + 2] = 0.08;
+            }
+        }
+        pG.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+
+        const pts = new THREE.Points(
+            pG,
+            new THREE.PointsMaterial({ size: 0.04, transparent: true, opacity: 0.32, sizeAttenuation: true, vertexColors: true })
+        );
+        scene.add(pts);
+
+        let bS = 1;
+
+        function fit() {
+            const fov = camera.fov * Math.PI / 180;
+            const d = camera.position.z;
+            const vW = 2 * Math.tan(fov / 2) * d * camera.aspect;
+            bS = (vW * 0.88) / tW;
+            lg.scale.setScalar(bS * 0.35);
+            upR();
+        }
+
+        function upR() {
+            const s = lg.scale.x;
+            rg.scale.set(s, -s, s);
+            const b = lg.position.y - 0.825 * s;
+            rg.position.y = -1.45 - (b - (-1.45));
+            rg.position.x = lg.position.x;
+            rg.rotation.x = -lg.rotation.x;
+            rg.rotation.y = lg.rotation.y;
+            rg.rotation.z = -lg.rotation.z;
+        }
+
+        let time = 0, gX = 0, gY = 0, cTX = 0, cTY = 0.3;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.009;
+
+            const t = bS * (0.35 + storyProg * 0.65);
+            const c = lg.scale.x;
+            lg.scale.setScalar(c + (t - c) * 0.08);
+            lg.position.y = Math.sin(time * 0.7) * 0.08;
+            lg.rotation.y = Math.sin(time * 0.5) * 0.14 + gX * 0.14;
+            lg.rotation.x = Math.cos(time * 0.4) * 0.04 + gY * 0.04 + 0.04;
+
+            upR();
+            
+            const glowSpeed = 3.5;
+            const glowSpread = 0.8;
+            lg.children.forEach((letter, i) => {
+                const wave = (Math.sin(time * glowSpeed - i * glowSpread) + 1) / 2;
+                const intensity = Math.pow(wave, 6) * 0.65; 
+                letter.traverse(c => {
+                    if (c.isMesh) {
+                        c.material[0].emissive.setHex(0xffff00);
+                        c.material[0].emissiveIntensity = intensity;
+                        c.material[1].emissive.setHex(0xffff00);
+                        c.material[1].emissiveIntensity = intensity * 0.25; 
+                    }
+                });
+            });
+
+            kL.position.x = Math.cos(time * 0.5) * 3.5;
+            kL.position.y = Math.sin(time * 0.38) * 1.5 + 5;
+            fL.position.x = Math.sin(time * 0.4) * 4 - 2;
+            
+            cTX += (gX * 0.28 - cTX) * 0.05;
+            cTY += (0.3 + gY * 0.18 - cTY) * 0.05;
+            
+            camera.position.x = cTX;
+            camera.position.y = cTY;
+            camera.lookAt(0, 0, 0);
+            
+            pts.rotation.y += 0.0004;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = W() / H();
+            camera.updateProjectionMatrix();
+            renderer.setSize(W(), H());
+            fit();
+        }, { passive: true });
+
+        if (typeof DeviceOrientationEvent !== 'undefined') {
+            window.addEventListener('deviceorientation', e => {
+                gX = Math.max(-1, Math.min(1, (e.gamma || 0) / 40));
+                gY = Math.max(-1, Math.min(1, ((e.beta || 0) - 30) / 50));
+            }, { passive: true });
+        }
+
+        window.addEventListener('load', () => {
+            fit();
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('out');
+                animate();
+            }, 2500);
+        });
+        
+                // Scroll to Page 5 when the button on Page 4 is clicked
+        document.getElementById('p4btn').addEventListener('click', () => {
+            document.getElementById('page5').scrollIntoView({ behavior: 'smooth' });
+        });
+
+    </script>
+</body>
+</html>
